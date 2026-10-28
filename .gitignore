@@ -1,0 +1,25 @@
+# Student-level data (never commit)
+*.Rdata
+*.rda
+*.Rda
+*.txt.zip
+*.csv.zip
+
+# WIDA concordance workbook (distributed to states; keep out of the public remote)
+Data/*.xlsx
+
+# Aggregate caches: rebuilt by `make`; kept out of the public remote
+summary/*.rds
+
+# Quarto / knitr scratch (root output only; docs/index.html is the deck)
+.quarto/
+*_files/
+*_cache/
+/index_files/
+/index.html
+
+# OS / editor
+.DS_Store
+*~
+.Rhistory
+.Rproj.user/

@@ -1,0 +1,1292 @@
+---
+title: "WIDA ACCESS 2026–27 Proficiency Levels"
+subtitle: "What Changes for English Learner Exit in Indiana"
+author:
+  - name: "Damian W. Betebenner"
+    affiliation: "National Center for the Improvement of Educational Assessment"
+date: 2026-11-01
+date-format: "[Indiana Department of Education · ]MMMM YYYY"
+format:
+  revealjs:
+    output-file: index.html
+    theme: [default, styles/presentation-theme.scss]
+    slide-number: true
+    transition: fade
+    transition-speed: fast
+    width: 1920
+    height: 1080
+    margin: 0.06
+    center: false
+    hash: true
+    history: true
+    controls: true
+    progress: true
+    html-math-method: mathml
+    fig-align: center
+    embed-resources: true
+    include-in-header:
+      - text: |
+          <style>
+            .timeline { display: flex; gap: 1.1em; align-items: stretch; margin: 0.6em 0 0.9em 0; }
+            .timeline .step { flex: 1; border-top: 6px solid #5c5c58; background: var(--color-surface-subtle, #f4f4f1);
+              padding: 0.6em 0.85em 0.8em 0.85em; font-size: 0.8em; line-height: 1.45; }
+            .timeline .step.new { border-top-color: #8E44AD; }
+            .timeline .step.policy { border-top-color: #1f6f54; }
+            .timeline .when { font-family: "Josefin Sans", sans-serif; font-weight: 700; font-size: 1.25em; display: block; margin-bottom: 0.25em; }
+            .reveal .columns > .column { box-sizing: border-box; }
+            .reveal .columns > .column:not(:first-child) { padding-left: 0.7em; }
+            .reveal .columns > .column:not(:last-child) { padding-right: 0.7em; }
+            .callout-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1em; margin: 0.4em 0 0.8em 0; }
+            .callout-row.three { grid-template-columns: repeat(3, 1fr); }
+            .callout-row .stat-callout { background: var(--color-surface-subtle, #f4f4f1); border-radius: 4px; }
+            .callout-row .stat-number { font-size: 1.9em; }
+            .stat-number .arrow { color: #8E44AD; font-weight: 400; padding: 0 0.12em; }
+            .answer { font-family: "Josefin Sans", sans-serif; font-weight: 700; color: #8E44AD; }
+            .rt-new { color: #8E44AD; font-weight: 600; }
+            .rt-up { color: #1f6f54; }
+            .rt-down { color: #9b3d3d; }
+          </style>
+    include-after-body:
+      - text: |
+          <script src="styles/presentation-figure-modal.js"></script>
+execute:
+  echo: false
+  warning: false
+  message: false
+knitr:
+  opts_chunk:
+    dev: "svg"
+    dev.args:
+      bg: "#F6F6F5"
+    fig.align: "center"
+---
+
+```{r setup}
+#| include: false
+
+source("R/00_helpers.R")
+suppressPackageStartupMessages({
+  library(data.table)
+  library(ggplot2)
+})
+
+CS <- readRDS("summary/concordance_summary.rds")
+IS <- readRDS("summary/in_wida_impact_summary.rds")
+
+CY  <- IS$meta$current_year
+YRS <- IS$meta$years
+lad <- as.data.table(CS$ladder)
+pc  <- as.data.table(CS$policy_cuts)
+rw  <- as.data.table(IS$rates_wide)
+rs  <- as.data.table(IS$rates_state)
+rs3 <- as.data.table(IS$rates_state_g3)
+tr  <- as.data.table(IS$transitions)
+gc  <- as.data.table(IS$grade_cuts)
+bc  <- as.data.table(IS$band_cuts)
+ob  <- as.data.table(IS$options_by_grade)
+os  <- as.data.table(IS$options_state)
+oc  <- as.data.table(IS$option_cuts)
+vs  <- as.data.table(IS$validation_state)
+vg  <- as.data.table(IS$validation)
+mc  <- as.data.table(IS$method_check)
+ccs <- as.data.table(IS$cut_curve_state)
+cc3 <- as.data.table(IS$cut_curve_g3)
+hist26 <- as.data.table(IS$hist_2026)
+ily <- as.data.table(IS$ilearn_youden)
+
+OLD_COL    <- "#5c5c58"
+NEW_COL    <- "#8E44AD"
+AUTO_COL   <- "#1f6f54"
+REVIEW_COL <- "#d9a441"
+GRID_COL   <- "#D8D8D4"
+## Halfway between white and the slide background rgb(237, 237, 235).
+FIG_BG     <- "#F6F6F5"
+TEXT_COL   <- "#141410"
+WARN_COL   <- "#9b3d3d"
+YEAR_COLS  <- c("2024" = "#95A5A6", "2025" = "#3498DB", "2026" = "#141410")
+STD_COLS   <- setNames(c(OLD_COL, NEW_COL), STANDARD_LABELS)
+
+theme_in <- function(base_size = 22) {
+  theme_minimal(base_size = base_size, base_family = "Noto Sans") +
+    theme(
+      text             = element_text(color = TEXT_COL),
+      plot.title       = element_text(face = "bold", size = rel(1.05)),
+      plot.subtitle    = element_text(color = "#5c5c58"),
+      panel.grid.minor = element_blank(),
+      panel.grid.major = element_line(color = GRID_COL, linewidth = 0.4),
+      strip.text       = element_text(face = "bold"),
+      legend.position  = "top",
+      legend.title     = element_blank(),
+      axis.title       = element_text(color = "#5c5c58"),
+      plot.background  = element_rect(fill = FIG_BG, colour = NA),
+      panel.background = element_rect(fill = FIG_BG, colour = NA),
+      plot.margin      = margin(14, 18, 10, 14)
+    )
+}
+
+emit_html <- function(x) cat("\n```{=html}\n", x, "\n```\n", sep = "")
+
+table_css <- '
+<style>
+  table.results-table { border-collapse: collapse; width: 100%; font-size: 0.72em; }
+  table.results-table th, table.results-table td { padding: 0.32em 0.6em; text-align: center; border-bottom: 1px solid var(--color-border); }
+  table.results-table thead .grp { font-family: "Josefin Sans", sans-serif; font-weight: 600; }
+  table.results-table thead .grp-old { color: #5c5c58; border-bottom: 2px solid #5c5c58; }
+  table.results-table thead .grp-new { color: #8E44AD; border-bottom: 2px solid #8E44AD; }
+  table.results-table .rt-grade { text-align: left; font-family: "Josefin Sans", sans-serif; }
+  table.results-table .rt-warn { color: #9b3d3d; }
+  table.results-table tbody tr:hover { background: var(--color-surface-subtle); }
+  table.results-table tr.dim-row th { text-align:left; background: var(--color-surface-subtle);
+    font-family:"Josefin Sans",sans-serif; color: var(--color-primary); padding-top:0.5em; }
+  table.results-table tr.hl-row { background: rgba(142, 68, 173, 0.07); }
+  .rt-caption { font-size: 0.6em; color: var(--color-secondary); font-style: italic; margin-top: 0.4em; }
+</style>'
+
+## Plain-text signed number with a true minus sign (for ggplot labels).
+txt_signed <- function(x, digits = 1) {
+  ifelse(is.na(x), "",
+         paste0(ifelse(round(x, digits) > 0, "+", ifelse(round(x, digits) < 0, "\u2212", "")),
+                formatC(abs(round(x, digits)), format = "f", digits = digits)))
+}
+pp <- function(x, d = 1) formatC(round(x, d), format = "f", digits = d)
+cnt <- function(x) formatC(round(x), format = "d", big.mark = ",")
+
+## ---- inline numbers ------------------------------------------------------
+st <- function(year, std, col, d = rs) d[YEAR == year & STANDARD == std][[col]]
+N_CY        <- st(CY, "OLD", "n")
+AUTO_OLD    <- st(CY, "OLD", "pct_auto");  AUTO_NEW <- st(CY, "NEW", "pct_auto")
+NAUTO_OLD   <- st(CY, "OLD", "n_auto");    NAUTO_NEW <- st(CY, "NEW", "n_auto")
+REG3_OLD    <- st(CY, "OLD", "pct_region", rs3); REG3_NEW <- st(CY, "NEW", "pct_region", rs3)
+N3_CY       <- st(CY, "OLD", "n", rs3)
+NREG3_OLD   <- round(REG3_OLD * N3_CY / 100); NREG3_NEW <- round(REG3_NEW * N3_CY / 100)
+
+g  <- function(grade, col, year = CY) rw[YEAR == year & GRADE == as.character(grade)][[col]]
+trc <- tr[YEAR == CY]
+LOSE_AUTO <- sum(trc$lose_auto, na.rm = TRUE); GAIN_AUTO <- sum(trc$gain_auto, na.rm = TRUE)
+LOSE_REG  <- sum(trc$lose_region, na.rm = TRUE); GAIN_REG <- sum(trc$gain_region, na.rm = TRUE)
+LOSE_AUTO_45 <- sum(trc[GRADE %in% c("4", "5")]$lose_auto, na.rm = TRUE)
+LOSE_REG_45  <- sum(trc[GRADE %in% c("4", "5")]$lose_region, na.rm = TRUE)
+CHANGED_AUTO <- LOSE_AUTO + GAIN_AUTO
+
+cut50 <- function(grade, col) pc[THRESHOLD == 5.0 & GRADE == as.character(grade)][[col]]
+cut43 <- function(grade, col) pc[THRESHOLD == 4.3 & GRADE == as.character(grade)][[col]]
+
+## Share of all auto-exits that come from grades 4–5.
+share45 <- function(std) {
+  x <- rw[YEAR == CY]
+  col <- paste0("n_auto_", std)
+  100 * sum(x[GRADE %in% c("4", "5")][[col]]) / sum(x[[col]])
+}
+
+SHARE_N45 <- 100 * sum(rw[YEAR == CY & GRADE %in% c("4", "5")]$n) / N_CY
+
+## History years: net statewide change vs grade 1's own change, in students.
+hist_decomp <- rw[YEAR != CY, .(net = sum(n_auto_NEW - n_auto_OLD),
+                                g1 = sum((n_auto_NEW - n_auto_OLD)[GRADE == "1"])), by = YEAR]
+drop45 <- rw[GRADE %in% c("4", "5"), 100 * (1 - pct_auto_NEW / pct_auto_OLD)]
+N_REV_G3_OLD <- rw[YEAR == CY & GRADE == "3"]$n_review_OLD
+N_REV_G3_NEW <- rw[YEAR == CY & GRADE == "3"]$n_review_NEW
+TOP_REV_NEW  <- rw[YEAR == CY][which.max(n_review_NEW)]$GRADE
+drop45_cy <- rw[YEAR == CY & GRADE %in% c("4", "5"), 100 * (1 - pct_auto_NEW / pct_auto_OLD)]
+
+gc_cy  <- gc[YEAR == CY]
+gc_pool <- gc[YEAR == "2024–2026"]
+AUTO_CUT_RANGE <- range(gc_cy[RULE == "AUTO"]$cut)
+REV_CUT_RANGE  <- range(gc_cy[RULE == "REVIEW"]$cut)
+state_cut <- function(year, rule = "AUTO") {
+  band <- if (rule == "AUTO") "K–12" else "Grades 3–12"
+  bc[YEAR == year & RULE == rule & as.character(BAND) == band]
+}
+SC_CY <- state_cut(CY); SC_POOL <- state_cut("2024–2026")
+SR_CY <- state_cut(CY, "REVIEW")
+
+hist_auto <- function(year, std) st(year, std, "pct_auto")
+HIST_YEARS <- setdiff(YRS, CY)
+max_pl_shift_45 <- tr[YEAR == CY & GRADE %in% c("4", "5"), range(mean_pl_shift)]
+
+## Youden excess of grades 4–5 over the other ILEARN grades.
+if (nrow(ily)) {
+  ily[, GRADE := as.character(GRADE)]
+  Y_OTHER <- median(ily[!GRADE %in% c("4", "5")]$best_cut_median)
+  Y_45 <- ily[GRADE %in% c("4", "5")]$best_cut_median
+} else { Y_OTHER <- NA_real_; Y_45 <- c(NA_real_, NA_real_) }
+```
+
+## Roadmap {.center}
+
+::: {.visually-hidden}
+Roadmap for the talk
+:::
+
+::: {style="font-size: 1.05em;"}
+1. **What changed** &mdash; a new scale in 2025&ndash;26, new proficiency levels in 2026&ndash;27
+2. **Why grades 4 and 5** &mdash; the exit cut on WIDA's vertical scale
+3. **2026 exit impact** &mdash; old versus new standards, by grade
+4. **Is it stable?** &mdash; the new standards applied to 2024 and 2025
+5. **Policy options** &mdash; keep 5.0, grade-specific cuts, or grade bands
+6. **Summary of results** &mdash; and questions for IDOE
+:::
+
+::: {.key-insight}
+The comparison is exact: the same **`r cnt(N_CY)`** 2026 composite scores are classified under the current and the new proficiency-level tables. Statewide, auto-exit moves from **`r pp(AUTO_OLD)`%** to **`r pp(AUTO_NEW)`%**. By grade, it moves a great deal.
+:::
+
+::: {.notes}
+Headline up front: neutral statewide, redistributive by grade. The rest of the deck explains why grades 4 and 5 move down, why grade 1 and the upper grades move up, and what Indiana could do about it.
+:::
+
+
+# What changed {.center}
+
+::: {.visually-hidden}
+Section one: what changed
+:::
+
+
+## Two changes, one year apart
+
+```{r timeline}
+#| output: asis
+emit_html('
+<div class="timeline">
+  <div class="step"><span class="when">Through 2024&ndash;25</span>
+    ACCESS 2.0 composite scale. Grade-specific cut scores define proficiency levels 1.0&ndash;6.0. Indiana exits on the <b>Overall composite PL</b>.</div>
+  <div class="step"><span class="when">2025&ndash;26</span>
+    WIDA introduces a <b>new vertical composite scale</b> (100&ndash;600, not comparable to the old one). Scores are reported with the <b>old</b> PLs, carried over by concordance.</div>
+  <div class="step new"><span class="when">2026&ndash;27</span>
+    WIDA standard setting yields <b>new PLs</b> on the new scale. The October 2026 concordance gives both PL tables for every new-scale score, grades K&ndash;12.</div>
+  <div class="step policy"><span class="when">Indiana policy</span>
+    Exit rules are written in PL numbers: <b>5.0 auto-exit</b> (K&ndash;12) and <b>4.3&ndash;4.9 review</b> (grades 3+). The numbers stay the same; the scores behind them move.</div>
+</div>')
+```
+
+::: {.key-insight}
+Nothing about a student's 2025&ndash;26 performance changes. What changes is **which scale score earns a 5.0 or a 4.3** &mdash; and that change is not the same size, or even the same direction, in every grade.
+:::
+
+::: {.notes}
+Two separate events. The scale changed last year, but because WIDA concorded the old proficiency levels onto the new scale, every reported PL in 2025-26 meant exactly what it meant before. Standard setting is the first time the PLs themselves change. Indiana's rule is written in PLs, so standard setting is what moves exit eligibility.
+:::
+
+
+## Indiana's exit rule and what this analysis does
+
+:::: {.columns}
+
+::: {.column width="50%"}
+**Current IDOE rule (Overall composite PL)**
+
+- **5.0 or higher** &rarr; exits EL status, any grade K&ndash;12
+- **4.3&ndash;4.9, grades 3+** &rarr; review-eligible; the ILP committee decides
+- Below 4.3, or below 5.0 in K&ndash;2 &rarr; remains EL
+
+In this deck, **auto-exit** means PL 5.0+, and the **exit region** means auto-exit plus review-eligible.
+:::
+
+::: {.column width="50%"}
+**The comparison**
+
+- Take each student's 2026 new-scale composite score.
+- Look up the PL under the **current** table (what was reported) and under the **new** 2026&ndash;27 table.
+- Apply the same Indiana rule to both.
+
+Same students, same scores, two PL tables. The only thing that differs is the standard.
+:::
+
+::::
+
+::: {.notes}
+Assumptions to confirm with IDOE: the Overall composite is the only exit criterion (no domain minimums), and 2026 performance stands in for what 2026-27 performance will look like.
+:::
+
+
+## Data and method
+
+```{r data-method}
+#| output: asis
+nrow_y <- vapply(YRS, function(y) {
+  v <- vs[YEAR == y]
+  note <- if (y == CY) "New scale; both PLs are exact concordance lookups" else
+    "Old scale; converted to the new scale with WIDA&rsquo;s production transform"
+  sprintf('<tr><th class="rt-grade">%s</th><td>%s</td><td>%s</td><td>%s</td><td style="text-align:left">%s</td></tr>',
+          y, cnt(v$n), paste0(pp(v$pct_pl_match), "%"), paste0(pp(v$pct_exit_match, 2), "%"), note)
+}, character(1))
+within01 <- min(vs[YEAR != CY]$pct_pl_within01)
+emit_html(paste0(table_css, sprintf('
+<table class="results-table" style="font-size:0.72em">
+  <thead><tr><th>Year</th><th>Valid ACCESS records</th><th>Reported PL reproduced</th><th>Exit status reproduced</th><th style="text-align:left">How the new PL is obtained</th></tr></thead>
+  <tbody>%s</tbody>
+</table>
+<div class="rt-caption">Reproduction: the current-standard PL looked up from the concordance, compared with the PL on Indiana&rsquo;s file. In 2024 and 2025, %s%% or more of reported PLs are reproduced to within 0.1.</div>',
+paste(nrow_y, collapse = ""), pp(within01, 2))))
+```
+
+- **Concordance:** WIDA ACCESS Concordance Table, updated October 2026, Overall composite, grades K&ndash;12, every new-scale score 100&ndash;600.
+- **2026:** the reported PL equals the concordance&rsquo;s current-standard PL for **every** student, so the old-versus-new comparison is exact.
+- **2024 and 2025:** robustness checks. Old-scale scores are converted with `widaACCESS_2026_scale_score_transformation()` (`SGPstateData`), rounded, and looked up in the new PL table. Applied to the 2026 old-scale scores, this route reproduces the exact exit classification for **`r pp(min(mc$pct_exit_agree))`&ndash;`r pp(max(mc$pct_exit_agree))`%** of students in each grade.
+- Only aggregates leave the analysis. Counts below `r SMALL_N` are suppressed.
+
+::: {.notes}
+The 2026 result is not an estimate: it is the same scores classified two ways. The history years go through WIDA's score transform and so carry a small amount of slippage at level boundaries; the method check on 2026 bounds that slippage.
+:::
+
+
+# Why grades 4 and 5? {.center}
+
+::: {.visually-hidden}
+Section two: the exit cut on the vertical scale
+:::
+
+
+## The 5.0 exit cut on the new vertical scale
+
+```{r cut-articulation}
+#| fig-width: 16
+#| fig-height: 6.4
+cl <- rbind(
+  lad[THRESHOLD == 5.0, .(GRADE, STANDARD, CUT = CUT_SS_NEW, RULE = "Auto-exit cut (PL 5.0)")],
+  lad[THRESHOLD == 4.3, .(GRADE, STANDARD, CUT = CUT_SS_NEW, RULE = "Review cut (PL 4.3)")]
+)
+cl[, G := as.integer(GRADE)]
+cl[, STD := factor(STANDARD_LABELS[STANDARD], levels = STANDARD_LABELS)]
+dips <- cl[order(RULE, STD, G)][, .(G, CUT, prev = shift(CUT)), by = .(RULE, STD)][!is.na(prev) & CUT < prev]
+ggplot(cl, aes(G, CUT, colour = STD)) +
+  annotate("rect", xmin = 3.5, xmax = 5.5, ymin = -Inf, ymax = Inf, fill = "#E6E6E1") +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3) +
+  geom_point(data = dips, aes(G, CUT), inherit.aes = FALSE, shape = 21, size = 8,
+             stroke = 1.3, colour = WARN_COL, fill = NA) +
+  facet_wrap(~ RULE) +
+  scale_colour_manual(values = STD_COLS) +
+  scale_x_continuous(breaks = 0:12, labels = c("K", 1:12)) +
+  labs(x = "Grade", y = "New-scale composite score at the cut",
+       title = "On the vertical scale, the current cuts fall from grade 3 to 4; the new cuts rise every grade",
+       subtitle = "Current cuts: WIDA's concordance images of the 2024–25 cuts. Circled: lower than the grade before.") +
+  theme_in(19)
+```
+
+::: {.notes}
+This is the hypothesis from the earlier New Hampshire and Indiana work, now confirmed with WIDA's own numbers. On a vertical scale the score needed to exit should not fall as grade rises. The concorded current cuts do fall at grade 4 - by 14 points at 5.0 and 13 at 4.3 - because WIDA's old grade 4-5 cuts were set relative to a different test form. Standard setting removed the dip. It also lowered the grade 1 cut, which sat almost on top of grade 2.
+:::
+
+
+## How far each cut moved
+
+```{r cut-deltas}
+#| fig-width: 16
+#| fig-height: 6.0
+dd <- pc[, .(GRADE, G = grade_factor(GRADE), DELTA,
+             RULE = ifelse(THRESHOLD == 5.0, "Auto-exit cut (PL 5.0)", "Review cut (PL 4.3)"))]
+ggplot(dd, aes(G, DELTA, fill = DELTA > 0)) +
+  geom_hline(yintercept = 0, colour = TEXT_COL, linewidth = 0.5) +
+  geom_col(width = 0.7) +
+  geom_text(aes(label = txt_signed(DELTA, 0), vjust = ifelse(DELTA > 0, -0.4, 1.3)), size = 6) +
+  facet_wrap(~ RULE) +
+  scale_fill_manual(values = c(`TRUE` = WARN_COL, `FALSE` = AUTO_COL), guide = "none") +
+  scale_y_continuous(expand = expansion(mult = 0.14)) +
+  labs(x = "Grade", y = "Change in cut (points)",
+       title = "Grades 4–5 must now score 20+ points higher to exit; grade 1 about 35 points lower",
+       subtitle = "Red: the new standard is harder to reach than the current one. Green: easier.") +
+  theme_in(19)
+```
+
+::: {.notes}
+Read this as the size of the change for a student at the margin. In grades 4 and 5 the new auto-exit cut is 24 and 20 points higher. In grade 1 it is 35 points lower. In grades 7 to 12 it is 5 to 18 points lower, so those grades become somewhat easier to exit. Kindergarten, grade 2 and grade 6 barely move.
+:::
+
+
+## Translating the current cuts into new levels
+
+```{r cut-translation}
+#| output: asis
+rows <- vapply(GRADES, function(gr) {
+  a <- pc[THRESHOLD == 5.0 & GRADE == gr]; b <- pc[THRESHOLD == 4.3 & GRADE == gr]
+  cls <- if (gr %in% c("4", "5")) ' class="hl-row"' else ""
+  dcls <- function(x) if (x > 0.05) "rt-down" else if (x < -0.05) "rt-up" else ""
+  sprintf('<tr%s><th class="rt-grade">%s</th><td>%d</td><td>%d</td><td class="rt-new %s">%s</td><td>%d</td><td>%d</td><td class="rt-new %s">%s</td></tr>',
+          cls, pretty_grade(gr), a$CUT_OLD, a$CUT_NEW, "", fmt_pl(a$NEW_PL_AT_OLD_CUT),
+          b$CUT_OLD, b$CUT_NEW, "", if (as.integer(gr) >= REVIEW_MIN_GRADE) fmt_pl(b$NEW_PL_AT_OLD_CUT) else
+            paste0('<span style="color:#9a9a96">', fmt_pl(b$NEW_PL_AT_OLD_CUT), "</span>"))
+}, character(1))
+emit_html(paste0(table_css, sprintf('
+<table class="results-table" style="font-size:0.68em;max-width:86%%;margin:0 auto">
+  <thead>
+    <tr><th></th><th colspan="3" class="grp grp-new">Auto-exit (current PL 5.0)</th><th colspan="3" class="grp grp-new">Review floor (current PL 4.3)</th></tr>
+    <tr><th>Grade</th><th>Current cut</th><th>New 5.0 cut</th><th>New PL at current cut</th><th>Current cut</th><th>New 4.3 cut</th><th>New PL at current cut</th></tr>
+  </thead>
+  <tbody>%s</tbody>
+</table>
+<div class="rt-caption">New-scale composite scores. &ldquo;New PL at current cut&rdquo; is the 2026&ndash;27 PL a student scoring exactly at today&rsquo;s cut would receive. Review floors for K&ndash;2 are shown in grey (no review band below grade 3).</div>',
+paste(rows, collapse = ""))))
+```
+
+::: {.notes}
+The right-hand columns are the bridge to the policy options. A grade 4 student who just reaches today's 5.0 would be reported as a 4.4 under the new levels; a grade 1 student who just reaches today's 5.0 would be a 6.0. Everywhere else the translation is within about half a level of 5.0.
+:::
+
+
+## Where students sit relative to the cut (2026)
+
+```{r histograms}
+#| fig-width: 16
+#| fig-height: 6.4
+HG <- c("1", "3", "4", "5", "8", "11")
+h <- hist26[GRADE %in% HG & !is.na(pct)]
+h[, FACET := factor(paste("Grade", pretty_grade(GRADE)), levels = paste("Grade", pretty_grade(HG)))]
+cuts <- pc[THRESHOLD == 5.0 & GRADE %in% HG]
+cuts[, FACET := factor(paste("Grade", pretty_grade(GRADE)), levels = levels(h$FACET))]
+ggplot(h, aes(BIN + HIST_BIN / 2, pct)) +
+  geom_rect(data = cuts, inherit.aes = FALSE,
+            aes(xmin = pmin(CUT_OLD, CUT_NEW), xmax = pmax(CUT_OLD, CUT_NEW), ymin = -Inf, ymax = Inf),
+            fill = "#E8DDEE") +
+  geom_col(width = HIST_BIN * 0.92, fill = "#9a9a96") +
+  geom_vline(data = cuts, aes(xintercept = CUT_OLD), colour = OLD_COL, linetype = "22", linewidth = 1) +
+  geom_vline(data = cuts, aes(xintercept = CUT_NEW), colour = NEW_COL, linewidth = 1.2) +
+  facet_wrap(~ FACET, nrow = 2, scales = "free_y") +
+  scale_x_continuous(breaks = seq(250, 550, 50)) +
+  coord_cartesian(xlim = c(230, 540)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  labs(x = "2026 new-scale composite score (5-point bins)", y = "% of grade",
+       title = "Grades 4–5 lose the students between the two cuts; grades 1, 3, 8 and 11 gain them",
+       subtitle = "Dashed grey: current 5.0 cut. Solid purple: new 5.0 cut. Shaded: auto-exit status changes.\nBins with fewer than 10 students suppressed.") +
+  theme_in(18)
+```
+
+::: {.notes}
+How many students change status depends on two things: how far the cut moved and how many students sit in between. In grades 4 and 5 the cut moved up into the dense part of the distribution, so many students are affected. In grade 1 the cut moved down into a dense region too, so many students gain. In grade 11 the move is modest and the tail is thin.
+:::
+
+
+# 2026 exit impact {.center}
+
+::: {.visually-hidden}
+Section three: 2026 exit impact by grade
+:::
+
+
+## Statewide, almost nothing changes
+
+```{r state-callouts}
+#| output: asis
+emit_html(sprintf('
+<div class="callout-row">
+  <div class="stat-callout"><div class="stat-number">%s%%<span class="arrow">&rarr;</span>%s%%</div><div class="stat-label">Auto-exit (5.0+), K&ndash;12<br>%s &rarr; %s students</div></div>
+  <div class="stat-callout"><div class="stat-number">%s%%<span class="arrow">&rarr;</span>%s%%</div><div class="stat-label">Exit region (4.3+), grades 3&ndash;12<br>%s &rarr; %s students</div></div>
+  <div class="stat-callout"><div class="stat-number">%s</div><div class="stat-label">Students whose auto-exit status changes<br>%s lose &middot; %s gain</div></div>
+  <div class="stat-callout"><div class="stat-number">%s%%<span class="arrow">&rarr;</span>%s%%</div><div class="stat-label">Share of all auto-exits<br>that are in grades 4&ndash;5</div></div>
+</div>',
+pp(AUTO_OLD), pp(AUTO_NEW), cnt(NAUTO_OLD), cnt(NAUTO_NEW),
+pp(REG3_OLD), pp(REG3_NEW), cnt(NREG3_OLD), cnt(NREG3_NEW),
+cnt(CHANGED_AUTO), cnt(LOSE_AUTO), cnt(GAIN_AUTO),
+pp(share45("OLD"), 0), pp(share45("NEW"), 0)))
+```
+
+::: {.key-insight}
+The new standards are **neutral in total** &mdash; `r cnt(NAUTO_NEW - NAUTO_OLD)` more auto-exits out of `r cnt(N_CY)` students &mdash; but **`r cnt(CHANGED_AUTO)` students change auto-exit status**. Grades 4&ndash;5 lose `r cnt(LOSE_AUTO_45)`; grades 1&ndash;3 and 7&ndash;12 gain `r cnt(GAIN_AUTO)`.
+:::
+
+- Grades 4&ndash;5 are **`r pp(SHARE_N45, 0)`%** of Indiana's ACCESS takers. Today they produce `r pp(share45("OLD"), 0)`% of auto-exits; under the new standards, `r pp(share45("NEW"), 0)`% &mdash; about their share of students.
+
+::: {.notes}
+If someone only looks at the statewide rate, they will conclude nothing happened. The redistribution is the story: under the current standards more than half of all auto-exits came from grades 4 and 5; under the new standards those grades contribute roughly in proportion to their enrolment.
+:::
+
+
+## Auto-exit rate by grade
+
+```{r auto-dumbbell}
+#| fig-width: 16
+#| fig-height: 6.4
+d <- rw[YEAR == CY]
+d[, G := grade_factor(GRADE)]
+dl <- rbind(d[, .(G, pct = pct_auto_OLD, STD = STANDARD_LABELS[["OLD"]])],
+            d[, .(G, pct = pct_auto_NEW, STD = STANDARD_LABELS[["NEW"]])])
+dl[, STD := factor(STD, levels = STANDARD_LABELS)]
+ggplot() +
+  geom_segment(data = d, aes(x = G, xend = G, y = pct_auto_OLD, yend = pct_auto_NEW),
+               colour = "#C9C9C4", linewidth = 2.4) +
+  geom_point(data = dl, aes(G, pct, colour = STD), size = 6.5) +
+  geom_text(data = d, aes(G, pmax(pct_auto_OLD, pct_auto_NEW) + 1.6, label = txt_signed(d_auto)),
+            size = 6, colour = ifelse(d$d_auto < 0, WARN_COL, AUTO_COL)) +
+  scale_colour_manual(values = STD_COLS) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, NA),
+                     expand = expansion(mult = c(0, 0.08))) +
+  labs(x = "Grade", y = "% of grade at PL 5.0 or higher",
+       title = "Grade 4 and 5 auto-exit falls by about three-quarters; grade 1 rises almost tenfold",
+       subtitle = paste0("Same ", cnt(N_CY), " students, ", CY, " scores. Labels: change in percentage points.")) +
+  theme_in(19)
+```
+
+::: {.notes}
+Grade 4 goes from 22.5 to 6.3 percent, grade 5 from 18.1 to 5.1. Grade 1 goes from under 1 percent to 6.5. Grade 3 nearly doubles, and grades 8 to 12 roughly double from a low base. After standard setting the auto-exit rate is much flatter across grades: between about 1 and 11 percent everywhere, instead of 1 to 23.
+:::
+
+
+## The exit region: auto-exit plus review
+
+```{r region-bars}
+#| fig-width: 16
+#| fig-height: 6.4
+rr <- rw[YEAR == CY]
+rl <- rbind(
+  rr[, .(GRADE, STD = "OLD", COMP = "Auto-exit (5.0+)", pct = pct_auto_OLD)],
+  rr[, .(GRADE, STD = "OLD", COMP = "Review-eligible (4.3–4.9)", pct = pct_review_OLD)],
+  rr[, .(GRADE, STD = "NEW", COMP = "Auto-exit (5.0+)", pct = pct_auto_NEW)],
+  rr[, .(GRADE, STD = "NEW", COMP = "Review-eligible (4.3–4.9)", pct = pct_review_NEW)]
+)
+rl[, x := as.integer(GRADE) + 1 + ifelse(STD == "OLD", -0.21, 0.21)]
+rl[, COMP := factor(COMP, levels = c("Review-eligible (4.3–4.9)", "Auto-exit (5.0+)"))]
+rl[, ALPHA := ifelse(STD == "OLD", "a", "b")]
+tot <- rl[, .(pct = sum(pct)), by = .(GRADE, STD, x)]
+ggplot(rl, aes(x, pct, fill = COMP, alpha = ALPHA)) +
+  geom_col(width = 0.4, colour = NA) +
+  geom_text(data = tot, inherit.aes = FALSE, aes(x, pct + 1.5, label = ifelse(STD == "OLD", "C", "N")),
+            size = 5, colour = "#5c5c58") +
+  scale_fill_manual(values = c("Auto-exit (5.0+)" = AUTO_COL, "Review-eligible (4.3–4.9)" = REVIEW_COL)) +
+  scale_alpha_manual(values = c(a = 0.45, b = 1), guide = "none") +
+  scale_x_continuous(breaks = 1:13, labels = c("K", 1:12)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), expand = expansion(mult = c(0, 0.06))) +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  labs(x = "Grade", y = "% of grade",
+       title = "Grade 4–5 exit regions shrink by about 20 points; grades 3 and 7–12 grow",
+       subtitle = "Left (C, lighter): current standards. Right (N): new standards. The review band applies in grades 3+ only.") +
+  theme_in(19)
+```
+
+::: {.notes}
+The exit region in grade 4 falls from 54 to 30 percent of students and in grade 5 from 47 to 29. Grade 3 rises from 24 to 34 percent, which matters for ILP committee capacity: grade 3 becomes the grade with the most review-eligible students.
+:::
+
+
+## Where exits happen: counts by grade
+
+```{r count-bars}
+#| fig-width: 16
+#| fig-height: 6.0
+cn <- rbind(rw[YEAR == CY, .(G = grade_factor(GRADE), n = n_auto_OLD, STD = STANDARD_LABELS[["OLD"]])],
+            rw[YEAR == CY, .(G = grade_factor(GRADE), n = n_auto_NEW, STD = STANDARD_LABELS[["NEW"]])])
+cn[, STD := factor(STD, levels = STANDARD_LABELS)]
+ggplot(cn, aes(G, n, fill = STD)) +
+  geom_col(position = position_dodge(width = 0.78), width = 0.72) +
+  geom_text(aes(label = cnt(n)), position = position_dodge(width = 0.78), vjust = -0.4, size = 5.2) +
+  scale_fill_manual(values = STD_COLS) +
+  scale_y_continuous(labels = scales::label_comma(), expand = expansion(mult = c(0, 0.1))) +
+  labs(x = "Grade", y = "Students at PL 5.0 or higher",
+       title = paste0(cnt(NAUTO_OLD), " auto-exits today, ", cnt(NAUTO_NEW), " under the new standards; they move out of grades 4–5"),
+       subtitle = paste0(CY, " ACCESS takers. Grade 4 and 5 cohorts are smaller than K–3, so their rates translate into fewer students.")) +
+  theme_in(19)
+```
+
+::: {.notes}
+In counts: grade 4 goes from about 1,940 auto-exits to about 540, grade 5 from about 1,360 to about 390. Grade 1 goes from about 70 to about 640, grade 3 from about 590 to about 1,150.
+:::
+
+
+## Who changes status
+
+```{r transitions}
+#| fig-width: 16
+#| fig-height: 6.2
+tt <- rbind(
+  trc[, .(G = grade_factor(GRADE), RULE = "Auto-exit (5.0+)", DIR = "Lose", n = -lose_auto)],
+  trc[, .(G = grade_factor(GRADE), RULE = "Auto-exit (5.0+)", DIR = "Gain", n = gain_auto)],
+  trc[as.integer(GRADE) >= REVIEW_MIN_GRADE, .(G = grade_factor(GRADE), RULE = "Exit region (4.3+), grades 3–12", DIR = "Lose", n = -lose_region)],
+  trc[as.integer(GRADE) >= REVIEW_MIN_GRADE, .(G = grade_factor(GRADE), RULE = "Exit region (4.3+), grades 3–12", DIR = "Gain", n = gain_region)]
+)
+tt[is.na(n), n := 0]
+ggplot(tt, aes(G, n, fill = DIR)) +
+  geom_hline(yintercept = 0, colour = TEXT_COL, linewidth = 0.5) +
+  geom_col(width = 0.7) +
+  geom_text(data = tt[n != 0], aes(label = cnt(abs(n)), vjust = ifelse(n > 0, -0.35, 1.3)), size = 5.2) +
+  facet_wrap(~ RULE, scales = "free_x") +
+  scale_fill_manual(values = c(Lose = WARN_COL, Gain = AUTO_COL)) +
+  scale_y_continuous(labels = function(x) scales::comma(abs(x)), expand = expansion(mult = 0.12)) +
+  labs(x = "Grade", y = "Students",
+       title = "Within each grade, changes run one way: grades 4–5 lose, grades 1–3 and 7–12 gain",
+       subtitle = "Students whose 2026 status differs between the two standards. Counts of 1–9 suppressed (shown as 0).") +
+  theme_in(19)
+```
+
+::: {.notes}
+Within any grade, everyone moves in the same direction because the whole PL table shifted one way. No student in grade 4 or 5 gains exit; no student in grades 1, 3 or 7-12 loses it. Kindergarten and grade 6 lose a handful (suppressed). In total `r cnt(LOSE_REG_45)` grade 4-5 students would leave the exit region and become ordinary EL students again.
+:::
+
+
+# Is it stable? {.center}
+
+::: {.visually-hidden}
+Section four: the new standards applied to 2024 and 2025
+:::
+
+
+## Auto-exit by grade, 2024&ndash;2026
+
+```{r history-auto}
+#| fig-width: 16
+#| fig-height: 6.4
+hl <- rbind(rw[, .(YEAR, G = as.integer(GRADE), pct = pct_auto_OLD, STD = STANDARD_LABELS[["OLD"]])],
+            rw[, .(YEAR, G = as.integer(GRADE), pct = pct_auto_NEW, STD = STANDARD_LABELS[["NEW"]])])
+hl[, STD := factor(STD, levels = STANDARD_LABELS)]
+hl[, FACET := factor(paste0(YEAR, ifelse(YEAR == CY, " (exact)", " (via score transform)")),
+                     levels = paste0(YRS, ifelse(YRS == CY, " (exact)", " (via score transform)")))]
+ggplot(hl, aes(G, pct, colour = STD)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3) +
+  facet_wrap(~ FACET) +
+  scale_colour_manual(values = STD_COLS) +
+  scale_x_continuous(breaks = 0:12, labels = c("K", 1:12)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  labs(x = "Grade", y = "% at PL 5.0 or higher",
+       title = "The grade 4–5 peak disappears in every year; grade 1 rises in every year",
+       subtitle = "Current standards: the PL Indiana reported. New standards: each year's scores classified with the 2026–27 PL table.") +
+  theme_in(19)
+```
+
+::: {.notes}
+Under the current standards grades 4 and 5 have been the exit peak every year: about 17 percent in 2024 and 2025 and higher in 2026. Under the new standards that peak is gone in every year. The grade 1 increase is larger in 2024 and 2025 (12 to 13 percent) than in 2026 (6.5 percent): 2026 first graders scored lower on the old metric than earlier cohorts did, so fewer of them sit near the new cut.
+:::
+
+
+## Exit region by grade, 2024&ndash;2026 (grades 3&ndash;12)
+
+```{r history-region}
+#| fig-width: 16
+#| fig-height: 6.4
+hr <- rbind(rw[as.integer(GRADE) >= REVIEW_MIN_GRADE, .(YEAR, G = as.integer(GRADE), pct = pct_region_OLD, STD = STANDARD_LABELS[["OLD"]])],
+            rw[as.integer(GRADE) >= REVIEW_MIN_GRADE, .(YEAR, G = as.integer(GRADE), pct = pct_region_NEW, STD = STANDARD_LABELS[["NEW"]])])
+hr[, STD := factor(STD, levels = STANDARD_LABELS)]
+hr[, FACET := factor(paste0(YEAR, ifelse(YEAR == CY, " (exact)", " (via score transform)")),
+                     levels = paste0(YRS, ifelse(YRS == CY, " (exact)", " (via score transform)")))]
+ggplot(hr, aes(G, pct, colour = STD)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3) +
+  facet_wrap(~ FACET) +
+  scale_colour_manual(values = STD_COLS) +
+  scale_x_continuous(breaks = 3:12) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, NA)) +
+  labs(x = "Grade", y = "% at PL 4.3 or higher",
+       title = "Under the new standards the exit region no longer peaks in grades 4–5",
+       subtitle = "Auto-exit plus review-eligible. Current standards: 43–54% in grades 4–5; new standards: 24–30%.") +
+  theme_in(19)
+```
+
+::: {.notes}
+The review region tells the same story with bigger numbers. Under the new standards grade 3 is the highest grade, then grades 4-5 and 8, then a slow decline to grade 12. That is the shape you would expect if a PL means the same thing in every grade.
+:::
+
+
+## Statewide totals by year
+
+```{r history-table}
+#| output: asis
+rows <- vapply(YRS, function(y) {
+  a <- rs[YEAR == y]; b <- rs3[YEAR == y]
+  sprintf('<tr%s><th class="rt-grade">%s</th><td>%s</td><td>%s%%</td><td class="rt-new">%s%%</td><td>%s</td><td>%s%%</td><td class="rt-new">%s%%</td><td>%s</td><td>%s</td></tr>',
+          if (y == CY) ' class="hl-row"' else "", y, cnt(a[STANDARD == "OLD"]$n),
+          pp(a[STANDARD == "OLD"]$pct_auto), pp(a[STANDARD == "NEW"]$pct_auto),
+          txt_signed(a[STANDARD == "NEW"]$pct_auto - a[STANDARD == "OLD"]$pct_auto),
+          pp(b[STANDARD == "OLD"]$pct_region), pp(b[STANDARD == "NEW"]$pct_region),
+          txt_signed(b[STANDARD == "NEW"]$pct_region - b[STANDARD == "OLD"]$pct_region),
+          fmt_pl(state_cut(y)$cut))
+}, character(1))
+emit_html(paste0(table_css, sprintf('
+<table class="results-table" style="font-size:0.8em">
+  <thead>
+    <tr><th></th><th></th><th colspan="3" class="grp grp-new">Auto-exit, K&ndash;12</th><th colspan="3" class="grp grp-new">Exit region, grades 3&ndash;12</th><th></th></tr>
+    <tr><th>Year</th><th>Students</th><th>Current</th><th>New</th><th>Change (pts)</th><th>Current</th><th>New</th><th>Change (pts)</th><th>Single new cut that best matches current auto-exit</th></tr>
+  </thead>
+  <tbody>%s</tbody>
+</table>
+<div class="rt-caption">The last column searches new-PL cuts in steps of 0.1 for the one whose statewide auto-exit share is closest to the current-standard share.</div>',
+paste(rows, collapse = ""))))
+```
+
+::: {.key-insight}
+Applied to earlier years, the new standards raise statewide auto-exit by `r pp(min(sapply(HIST_YEARS, function(y) hist_auto(y, "NEW") - hist_auto(y, "OLD"))))`&ndash;`r pp(max(sapply(HIST_YEARS, function(y) hist_auto(y, "NEW") - hist_auto(y, "OLD"))))` points (`r cnt(min(hist_decomp$net))`&ndash;`r cnt(max(hist_decomp$net))` students), about the size of grade 1's gain alone (`r cnt(min(hist_decomp$g1))`&ndash;`r cnt(max(hist_decomp$g1))`). The grade pattern &mdash; grades 4&ndash;5 down by `r pp(min(drop45), 0)`&ndash;`r pp(max(drop45), 0)`%, other grades flat or up &mdash; repeats every year.
+:::
+
+::: {.notes}
+2026 is close to neutral; 2024 and 2025 are slightly positive, because the grade 1 gain was larger in those cohorts. A statewide-neutral single cut sits between 5.0 and 5.1 in every year. Nothing here suggests 2026 is an unusual year for grades 3 to 12.
+:::
+
+
+# Policy options {.center}
+
+::: {.visually-hidden}
+Section five: policy options
+:::
+
+
+## Option A: keep 5.0 and 4.3 on the new levels
+
+:::: {.columns}
+
+::: {.column width="55%"}
+```{r option-a}
+#| fig-width: 9
+#| fig-height: 7.0
+oa <- ob[OPTION %in% c("CURRENT", "A")]
+oa[, G := as.integer(GRADE)]
+oa[, LAB := ifelse(OPTION == "CURRENT", STANDARD_LABELS[["OLD"]], "Option A: 5.0 / 4.3 on new PLs")]
+oa[, LAB := factor(LAB, levels = c(STANDARD_LABELS[["OLD"]], "Option A: 5.0 / 4.3 on new PLs"))]
+ggplot(oa, aes(G, pct_auto, colour = LAB)) +
+  geom_line(linewidth = 1.2) + geom_point(size = 3) +
+  scale_colour_manual(values = setNames(c(OLD_COL, NEW_COL), levels(oa$LAB))) +
+  scale_x_continuous(breaks = 0:12, labels = c("K", 1:12)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, NA)) +
+  guides(colour = guide_legend(ncol = 1)) +
+  labs(x = "Grade", y = "% auto-exit (2026)", title = "Auto-exit by grade") +
+  theme_in(21)
+```
+:::
+
+::: {.column width="45%"}
+- **No rule change.** The PL numbers in Indiana's rule stay; WIDA's new table supplies the scores.
+- **Statewide neutral:** `r pp(AUTO_OLD)`% &rarr; `r pp(AUTO_NEW)`% auto-exit; `r pp(REG3_OLD)`% &rarr; `r pp(REG3_NEW)`% exit region in grades 3+.
+- **Redistributes by grade:** fewer exits in grades 4&ndash;5, more in grades 1&ndash;3 and 7&ndash;12.
+- **Consistent with the vertical scale:** a 5.0 requires a higher score in every successive grade.
+
+::: {.key-insight}
+Option A accepts WIDA's judgment that a 5.0 should mean the same thing in every grade.
+:::
+:::
+
+::::
+
+::: {.notes}
+This is the default if Indiana does nothing. It inherits WIDA's standard setting directly. Its cost is concentrated: grade 4 and 5 families and teachers who expect the usual exit numbers will see far fewer.
+:::
+
+
+## Option B: grade-specific rate-preserving cuts
+
+:::: {.columns}
+
+::: {.column width="46%"}
+```{r option-b-table}
+#| output: asis
+rows <- vapply(GRADES, function(gr) {
+  a <- gc_cy[RULE == "AUTO" & GRADE == gr]; ap <- gc_pool[RULE == "AUTO" & GRADE == gr]
+  r <- gc_cy[RULE == "REVIEW" & GRADE == gr]; rp <- gc_pool[RULE == "REVIEW" & GRADE == gr]
+  cls <- if (gr %in% c("4", "5", "1")) ' class="hl-row"' else ""
+  sprintf('<tr%s><th class="rt-grade">%s</th><td>%s%%</td><td class="rt-new">%s</td><td>%s</td><td class="rt-new">%s</td><td>%s</td></tr>',
+          cls, pretty_grade(gr), pp(a$pct_old), fmt_pl(a$cut), fmt_pl(ap$cut),
+          if (nrow(r)) fmt_pl(r$cut) else "&mdash;", if (nrow(rp)) fmt_pl(rp$cut) else "&mdash;")
+}, character(1))
+emit_html(paste0(table_css, sprintf('
+<table class="results-table" style="font-size:0.62em">
+  <thead>
+    <tr><th></th><th></th><th colspan="2" class="grp grp-new">Auto-exit cut</th><th colspan="2" class="grp grp-new">Review floor</th></tr>
+    <tr><th>Grade</th><th>Current auto-exit</th><th>%s</th><th>2024&ndash;26</th><th>%s</th><th>2024&ndash;26</th></tr>
+  </thead>
+  <tbody>%s</tbody>
+</table>
+<div class="rt-caption">New-PL cut (steps of 0.1) whose share at or above is closest to the current-standard share.</div>',
+CY, CY, paste(rows, collapse = ""))))
+```
+:::
+
+::: {.column width="54%"}
+```{r option-b-chart}
+#| fig-width: 9.6
+#| fig-height: 5.6
+bcut <- merge(gc_cy[RULE == "AUTO", .(GRADE, cut)],
+              lad[STANDARD == "NEW", .(GRADE, cut = THRESHOLD, SS_B = CUT_SS_NEW)], by = c("GRADE", "cut"))
+bl <- rbind(
+  lad[THRESHOLD == 5.0 & STANDARD == "OLD", .(G = as.integer(GRADE), SS = CUT_SS_NEW, LAB = "Current 5.0 cut")],
+  lad[THRESHOLD == 5.0 & STANDARD == "NEW", .(G = as.integer(GRADE), SS = CUT_SS_NEW, LAB = "Option A: new 5.0 cut")],
+  bcut[, .(G = as.integer(GRADE), SS = SS_B, LAB = "Option B: rate-preserving cut")]
+)
+bl[, LAB := factor(LAB, levels = c("Current 5.0 cut", "Option A: new 5.0 cut", "Option B: rate-preserving cut"))]
+ggplot(bl, aes(G, SS, colour = LAB, linetype = LAB)) +
+  annotate("rect", xmin = 3.5, xmax = 5.5, ymin = -Inf, ymax = Inf, fill = "#E6E6E1") +
+  geom_line(linewidth = 1.1) + geom_point(size = 2.6) +
+  scale_colour_manual(values = c(OLD_COL, NEW_COL, REVIEW_COL)) +
+  scale_linetype_manual(values = c("22", "solid", "solid")) +
+  scale_x_continuous(breaks = 0:12, labels = c("K", 1:12)) +
+  guides(colour = guide_legend(ncol = 1), linetype = guide_legend(ncol = 1)) +
+  labs(x = "Grade", y = "Score needed to auto-exit",
+       title = "Option B rebuilds the grade 4 dip") +
+  theme_in(20)
+```
+
+::: {.warning-box}
+::: {.warning-box-title}
+Rate preservation undoes the vertical articulation
+:::
+Holding each grade's rate takes new-PL cuts from **`r fmt_pl(AUTO_CUT_RANGE[1])`** (grade 4) to **`r fmt_pl(AUTO_CUT_RANGE[2])`** (grade 1), putting the exit score back on the current, non-vertical path.
+:::
+:::
+
+::::
+
+::: {.notes}
+These cuts are very stable across years: the 2026 and pooled 2024-26 columns differ by at most 0.1. That stability is the point: they reproduce the old cut structure, including the grade 3-to-4 drop, so they would preserve the old rates by preserving the old anomaly. A grade 4 student would exit at a lower score than a grade 3 student.
+:::
+
+
+## Option C: grade-band cuts
+
+```{r option-c}
+#| output: asis
+bands <- c(names(GRADE_BANDS))
+brow <- vapply(bands, function(b) {
+  a <- bc[YEAR == CY & RULE == "AUTO" & as.character(BAND) == b]
+  r <- bc[YEAR == CY & RULE == "REVIEW" & as.character(BAND) == b]
+  gs <- GRADE_BANDS[[b]]
+  rates <- ob[OPTION %in% c("CURRENT", "C") & GRADE %in% gs]
+  detail <- paste(vapply(gs, function(gr) sprintf("%s: %s&rarr;%s", pretty_grade(gr),
+      pp(rates[OPTION == "CURRENT" & GRADE == gr]$pct_auto), pp(rates[OPTION == "C" & GRADE == gr]$pct_auto)),
+      character(1)), collapse = " &middot; ")
+  sprintf('<tr><th class="rt-grade">%s</th><td>%s%%</td><td class="rt-new">%s</td><td>%s</td><td style="text-align:left;font-size:0.9em">%s</td></tr>',
+          b, pp(a$pct_old), fmt_pl(a$cut), if (nrow(r)) fmt_pl(r$cut) else "&mdash;", detail)
+}, character(1))
+emit_html(paste0(table_css, sprintf('
+<table class="results-table" style="font-size:0.76em">
+  <thead><tr><th>Band</th><th>Current auto-exit</th><th>Band auto-exit cut</th><th>Band review floor</th><th style="text-align:left">Auto-exit by grade under the band cut, current &rarr; Option C (%%)</th></tr></thead>
+  <tbody>%s</tbody>
+</table>
+<div class="rt-caption">%s ACCESS takers. Band cuts are new-PL cuts (steps of 0.1) matching each band&rsquo;s current share at or above 5.0 (auto) and 4.3 (review, grades 3+).</div>',
+paste(brow, collapse = ""), CY)))
+```
+
+::: {.key-insight}
+Bands preserve each band's total but not its grades. In the 3&ndash;5 band, a single `r fmt_pl(bc[YEAR == CY & RULE == "AUTO" & as.character(BAND) == "3–5"]$cut)` cut **triples grade 3 auto-exit** (`r pp(g(3, "pct_auto_OLD"))`% &rarr; `r pp(ob[OPTION == "C" & GRADE == "3"]$pct_auto)`%) while still cutting grade 4 by `r pp(100 * (1 - ob[OPTION == "C" & GRADE == "4"]$pct_auto / g(4, "pct_auto_OLD")), 0)`% and grade 5 by `r pp(100 * (1 - ob[OPTION == "C" & GRADE == "5"]$pct_auto / g(5, "pct_auto_OLD")), 0)`%. Grade 3 behaves like the grades above it; grades 4&ndash;5 are the outliers.
+:::
+
+::: {.notes}
+Bands are a compromise that does not fit the data well. The anomaly is specific to grades 4 and 5, and the 3-5 band straddles the break. Any band that keeps grades 4-5 near their old rates has to treat grade 3 very generously.
+:::
+
+
+## A single cut for all grades
+
+```{r single-cut}
+#| fig-width: 16
+#| fig-height: 6.2
+sc <- rbind(
+  ccs[, .(YEAR, CUT, pct = pct_new, ref = pct_auto_old, FACET = "Auto-exit share, K–12 (current: PL 5.0+)")],
+  cc3[, .(YEAR, CUT, pct = pct_new, ref = pct_ge43_old, FACET = "Exit-region share, grades 3–12 (current: PL 4.3+)")]
+)
+refs <- unique(sc[, .(YEAR, ref, FACET)])
+marks <- rbind(data.table(FACET = "Auto-exit share, K–12 (current: PL 5.0+)", x = 5.0),
+               data.table(FACET = "Exit-region share, grades 3–12 (current: PL 4.3+)", x = 4.3))
+ggplot(sc, aes(CUT, pct, colour = YEAR)) +
+  geom_vline(data = marks, aes(xintercept = x), colour = NEW_COL, linewidth = 0.8, linetype = "solid", alpha = 0.5) +
+  geom_hline(data = refs, aes(yintercept = ref, colour = YEAR), linetype = "22", linewidth = 0.8) +
+  geom_line(linewidth = 1.2) + geom_point(size = 2.2) +
+  facet_wrap(~ FACET, scales = "free_y") +
+  scale_colour_manual(values = YEAR_COLS) +
+  scale_x_continuous(breaks = seq(4, 6, 0.2)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  labs(x = "Single cut on the new PL scale, all grades", y = "% of students at or above the cut",
+       title = "Statewide, 5.0 and 4.3 on the new levels already match today's exit shares",
+       subtitle = "Solid: share at or above each new-PL cut. Dashed: that year's share under the current standards.\nPurple line: Indiana's current PL number.") +
+  theme_in(19)
+```
+
+::: {.notes}
+The curves cross the dashed reference lines almost exactly at Indiana's existing PL numbers. In 2026, 5.0 on the new levels gives `r pp(AUTO_NEW)` percent auto-exit against `r pp(AUTO_OLD)` percent today; 4.3 gives `r pp(REG3_NEW)` against `r pp(REG3_OLD)` in grades 3 and up. In 2024 and 2025 the auto-exit match sits between 5.0 and 5.1. No other single number does better.
+:::
+
+
+## Options compared, 2026
+
+```{r options-compare}
+#| fig-width: 16
+#| fig-height: 6.0
+olab <- c(CURRENT = "Current standards", A = "A: 5.0 / 4.3 on new PLs",
+          B = "B: grade-specific cuts", C = "C: grade-band cuts")
+oo <- copy(ob)[, LAB := factor(olab[OPTION], levels = olab)]
+oo[, G := as.integer(GRADE)]
+ggplot(oo, aes(G, pct_auto, colour = LAB)) +
+  geom_line(linewidth = 1.1) + geom_point(size = 3) +
+  scale_colour_manual(values = setNames(c(OLD_COL, NEW_COL, REVIEW_COL, "#3498DB"), olab)) +
+  scale_x_continuous(breaks = 0:12, labels = c("K", 1:12)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(0, NA)) +
+  labs(x = "Grade", y = "% auto-exit",
+       title = "Only Option A gives a smooth grade profile; B copies today's peak; C creates a new one in grade 3",
+       subtitle = paste0("Statewide auto-exit: current ", pp(os[OPTION == "CURRENT"]$pct_auto), "% · A ",
+                         pp(os[OPTION == "A"]$pct_auto), "% · B ", pp(os[OPTION == "B"]$pct_auto), "% · C ",
+                         pp(os[OPTION == "C"]$pct_auto), "%")) +
+  theme_in(19)
+```
+
+::: {.notes}
+All three options are close to neutral statewide, so the choice is about the grade profile, not the total. B reproduces the current profile because it is built to. C trades the grade 4-5 peak for a grade 3 peak. A is the only option whose profile follows from the vertical scale.
+:::
+
+
+## Independent corroboration: ILEARN
+
+:::: {.columns}
+
+::: {.column width="52%"}
+```{r ilearn-chart}
+#| fig-width: 9
+#| fig-height: 6.2
+if (nrow(ily)) {
+  iy <- merge(ily, tr[YEAR == CY, .(GRADE, mean_pl_shift)], by = "GRADE")
+  iy[, G := factor(GRADE, levels = as.character(3:8))]
+  ggplot(iy, aes(G, best_cut_median, fill = GRADE %in% c("4", "5"))) +
+    geom_hline(yintercept = Y_OTHER, colour = OLD_COL, linetype = "22") +
+    geom_col(width = 0.62) +
+    geom_errorbar(aes(ymin = best_cut_median - best_cut_sd, ymax = best_cut_median + best_cut_sd),
+                  width = 0.15, colour = TEXT_COL) +
+    geom_text(aes(y = best_cut_median + best_cut_sd + 0.04, label = fmt_pl(best_cut_median)),
+              vjust = 0, size = 6.5) +
+    scale_fill_manual(values = c(`TRUE` = WARN_COL, `FALSE` = "#9a9a96"), guide = "none") +
+    coord_cartesian(ylim = c(3, 5)) +
+    labs(x = "Grade", y = "Best WIDA cut for ILEARN ELA proficiency",
+         title = "Best-predicting cut, current PLs",
+         subtitle = "Median Youden-optimal cut, 2021–2025 (±1 SD)") +
+    theme_in(20)
+}
+```
+:::
+
+::: {.column width="48%"}
+- A separate Indiana analysis asked which **current** WIDA PL best separates students who are and are not proficient on **ILEARN ELA** (Youden's J, 2021&ndash;2025).
+- Grades 3 and 6&ndash;8: best cut about **`r fmt_pl(Y_OTHER)`**. Grades 4 and 5: **`r fmt_pl(Y_45[1])`** and **`r fmt_pl(Y_45[2])`**.
+- So under the current PLs, a grade 4&ndash;5 student needs about half a level more to show the same ILEARN readiness.
+- The new standards lower grade 4&ndash;5 PLs by an average of **`r pp(-max_pl_shift_45[2])`&ndash;`r pp(-max_pl_shift_45[1])`** of a level &mdash; about the same correction.
+:::
+
+::::
+
+::: {.key-insight}
+Two independent sources &mdash; WIDA's vertical scale and Indiana's own ILEARN outcomes &mdash; point to the same conclusion: current grade 4&ndash;5 PLs run high.
+:::
+
+::: {.notes}
+The ILEARN analysis is from the IN ILEARN-WIDA ACCESS sandbox (step 05, exit_grade_consistency). It was done on the old scale and old PLs, before the concordance existed, so it is a genuinely independent check. A Youden optimum is not a recommended exit number; what matters here is the relative position of grades 4-5.
+:::
+
+
+# Summary of results {.center}
+
+::: {.visually-hidden}
+Section six: summary of results
+:::
+
+
+## Do the new standards dramatically change exit rates?
+
+::: {.answer style="font-size:1.4em; margin-bottom:0.4em"}
+Not statewide. Yes, by grade.
+:::
+
+```{r summary-q1}
+#| output: asis
+emit_html(sprintf('
+<div class="callout-row">
+  <div class="stat-callout"><div class="stat-number">%s%%<span class="arrow">&rarr;</span>%s%%</div><div class="stat-label">Statewide auto-exit, %s</div></div>
+  <div class="stat-callout"><div class="stat-number">%s%%<span class="arrow">&rarr;</span>%s%%</div><div class="stat-label">Grade 4 auto-exit</div></div>
+  <div class="stat-callout"><div class="stat-number">%s%%<span class="arrow">&rarr;</span>%s%%</div><div class="stat-label">Grade 5 auto-exit</div></div>
+  <div class="stat-callout"><div class="stat-number">%s%%<span class="arrow">&rarr;</span>%s%%</div><div class="stat-label">Grade 1 auto-exit</div></div>
+</div>', pp(AUTO_OLD), pp(AUTO_NEW), CY, pp(g(4, "pct_auto_OLD")), pp(g(4, "pct_auto_NEW")),
+pp(g(5, "pct_auto_OLD")), pp(g(5, "pct_auto_NEW")), pp(g(1, "pct_auto_OLD")), pp(g(1, "pct_auto_NEW"))))
+```
+
+- **`r cnt(CHANGED_AUTO)`** students (`r pp(100 * CHANGED_AUTO / N_CY)`%) change auto-exit status. Apart from fewer than 10 each in kindergarten and grade 6, **every student who loses auto-exit is in grade 4 or 5** (`r cnt(LOSE_AUTO_45)`).
+- Grade 3 nearly doubles (`r pp(g(3, "pct_auto_OLD"))`% &rarr; `r pp(g(3, "pct_auto_NEW"))`%) and grades 8&ndash;12 roughly double from low bases.
+- The pattern is the same when the new standards are applied to 2024 and 2025.
+- The cause is **cut articulation**: on WIDA's vertical scale the current grade 4&ndash;5 cuts sit below grade 3's, and the current grade 1 cut sits almost at grade 2's. Standard setting removed both.
+
+::: {.notes}
+One-sentence answer: the new standards keep Indiana's statewide exit rate but move exits from grades 4 and 5 to grades 1 through 3 and the upper grades.
+:::
+
+
+## What cuts would preserve today's exit rates?
+
+:::: {.columns}
+
+::: {.column width="44%"}
+```{r summary-q2}
+#| output: asis
+rows <- vapply(GRADES, function(gr) {
+  a <- gc_cy[RULE == "AUTO" & GRADE == gr]; r <- gc_cy[RULE == "REVIEW" & GRADE == gr]
+  sprintf('<tr%s><th class="rt-grade">%s</th><td class="rt-new">%s</td><td>%s</td></tr>',
+          if (gr %in% c("1", "4", "5")) ' class="hl-row"' else "",
+          pretty_grade(gr), fmt_pl(a$cut), if (nrow(r)) fmt_pl(r$cut) else "&mdash;")
+}, character(1))
+emit_html(paste0(table_css, sprintf('
+<table class="results-table" style="font-size:0.64em">
+  <thead><tr><th>Grade</th><th>Auto-exit cut (new PL)</th><th>Review floor (new PL)</th></tr></thead>
+  <tbody>%s<tr class="dim-row"><th colspan="3">Statewide single cut: %s auto-exit &middot; %s review floor (grades 3&ndash;12)</th></tr></tbody>
+</table>', paste(rows, collapse = ""), fmt_pl(SC_CY$cut), fmt_pl(SR_CY$cut))))
+```
+:::
+
+::: {.column width="56%"}
+- **Grade by grade,** keeping each grade's rate needs auto-exit cuts from **`r fmt_pl(AUTO_CUT_RANGE[1])`** to **`r fmt_pl(AUTO_CUT_RANGE[2])`** and review floors from **`r fmt_pl(REV_CUT_RANGE[1])`** to **`r fmt_pl(REV_CUT_RANGE[2])`**. They are stable across 2024&ndash;2026 to within 0.1.
+- Those cuts rebuild the current score path, **including the grade 4 drop**. They preserve rates by preserving the anomaly.
+- **Statewide,** the rate-preserving single cut is **`r fmt_pl(SC_CY$cut)`** for auto-exit and **`r fmt_pl(SR_CY$cut)`** for the review floor &mdash; Indiana's current numbers. Pooled over 2024&ndash;2026 the auto-exit match is `r fmt_pl(SC_POOL$cut)`.
+
+::: {.key-insight}
+To keep today's **total**, Indiana need not change anything. To keep today's **grade profile**, Indiana would need 13 grade-specific cuts that contradict the new vertical scale.
+:::
+:::
+
+::::
+
+::: {.notes}
+Be precise about the two senses of "same percentage". The statewide percentage is preserved by 5.0 and 4.3 as they stand. The grade-level percentages need grade-specific cuts, and those cuts are only "right" if the old grade 4-5 exit peak reflected real readiness.
+:::
+
+
+## Is a single cut for all grades tenable?
+
+::: {.answer style="font-size:1.4em; margin-bottom:0.4em"}
+Yes &mdash; and the new scale is built for one.
+:::
+
+:::: {.columns}
+
+::: {.column width="50%"}
+**For a single cut (5.0 / 4.3)**
+
+- The new cuts rise in every grade: a single PL now requires more English in every successive grade.
+- It matches the statewide exit share in every year examined.
+- ILEARN outcomes independently say current grade 4&ndash;5 PLs run about half a level high.
+- It is the rule Indiana already has; nothing changes in policy text.
+:::
+
+::: {.column width="50%"}
+**What it costs**
+
+- Grade 4&ndash;5 auto-exits fall by `r pp(min(drop45_cy), 0)`&ndash;`r pp(max(drop45_cy), 0)`% in the first year.
+- Grade 1 exits rise substantially; IDOE may want to look at whether a K&ndash;1 exit at 5.0 reflects readiness.
+- Grade 3 has the most review-eligible students: `r cnt(N_REV_G3_NEW)`, up from `r cnt(N_REV_G3_OLD)`.
+:::
+
+::::
+
+::: {.key-insight}
+The real policy question is not the cut but the history: **did the old grade 4&ndash;5 exit peak reflect readiness, or an articulation artifact?** The vertical scale and the ILEARN evidence both say artifact.
+:::
+
+::: {.notes}
+Give the straight answer: yes. The new standards are what make a single cut defensible, because for the first time the cut scores articulate across grades. The cost is real and concentrated, which leads into the considerations slide.
+:::
+
+
+## Considerations for IDOE
+
+:::: {.columns}
+
+::: {.column width="50%"}
+**Communication**
+
+- Districts with large grade 4&ndash;5 EL populations will see far fewer exits in spring 2027. Explain in advance that the change is in the standard, not in students.
+- Families: `r cnt(LOSE_REG_45)` grade 4&ndash;5 students in the exit region today would not be under the new standards.
+
+**Review-band capacity**
+
+- Grade 3 review-eligible students rise from `r cnt(N_REV_G3_OLD)` to `r cnt(N_REV_G3_NEW)`, the most of any grade. Grade 3 ILP committees may need support.
+:::
+
+::: {.column width="50%"}
+**Transition-year options**
+
+- Adopt Option A now and monitor, or
+- A one-year hold-harmless for students who met the current cut in 2025&ndash;26 (they exited under the rule in force).
+- Revisit kindergarten and grade 1: the new standards make K&ndash;1 exit more common.
+
+**Monitoring spring 2027**
+
+- Rerun this pipeline on the first 2026&ndash;27 scores: exit rates by grade, statewide totals, and ILEARN outcomes of the new exiters.
+:::
+
+::::
+
+::: {.notes}
+These are prompts, not recommendations. The data support Option A on technical grounds; the transition choices are policy decisions for IDOE.
+:::
+
+
+## Discussion questions
+
+::: {.key-insight-box}
+::: {.key-insight-box-title}
+Where IDOE's guidance is needed
+:::
+1. **Does Indiana adopt WIDA's 2026&ndash;27 levels with the current 5.0 / 4.3 rule** (Option A), knowing the grade profile of exits will change?
+2. **Is the grade 4&ndash;5 drop acceptable** as a correction of an articulation artifact, or does IDOE want a transition provision for those grades?
+3. **Should kindergarten and grade 1 exit at 5.0** on the new levels, given the large increase in grade 1?
+4. **Is the Overall composite still the only exit criterion**, or will domain-level requirements be considered alongside the new levels?
+5. **What should be monitored in spring 2027** &mdash; and reported to districts &mdash; to confirm the new standards behave as expected?
+:::
+
+::: {.notes}
+Leave this up and open the floor.
+:::
+
+
+## Thank you {.center}
+
+::: {style="text-align: center; padding-top: 1em;"}
+::: {.conference-badge style="font-size:0.6em"}
+Indiana Department of Education &middot; Office of English Learners &amp; Multilingual Education
+:::
+
+**WIDA ACCESS 2026&ndash;27 Proficiency Levels: What Changes for English Learner Exit in Indiana**
+
+::: {style="font-size: 0.7em; color: #7c7c7c;"}
+Damian W. Betebenner &middot; National Center for the Improvement of Educational Assessment
+:::
+:::
+
+::: {.notes}
+Offer to rerun the pipeline when spring 2027 scores arrive, and to add any cut alternatives IDOE wants to see.
+:::
+
+
+# Appendix {.center}
+
+::: {.visually-hidden}
+Appendix
+:::
+
+
+## Appendix: 2026 exit rates by grade
+
+```{r app-grade-table}
+#| output: asis
+d <- rw[YEAR == CY]
+dcl <- function(x) if (is.na(x)) "" else if (x <= -1) "rt-down" else if (x >= 1) "rt-up" else ""
+rows <- vapply(seq_len(nrow(d)), function(i) {
+  r <- d[i]; t <- trc[GRADE == r$GRADE]
+  g3 <- as.integer(r$GRADE) >= REVIEW_MIN_GRADE
+  sprintf('<tr><th class="rt-grade">%s</th><td>%s</td><td>%s</td><td class="rt-new">%s</td><td class="%s">%s</td><td>%s</td><td class="rt-new">%s</td><td class="%s">%s</td><td>%s</td><td>%s</td></tr>',
+          pretty_grade(r$GRADE), cnt(r$n), fmt_pct(r$pct_auto_OLD), fmt_pct(r$pct_auto_NEW), dcl(r$d_auto), fmt_signed(r$d_auto),
+          if (g3) fmt_pct(r$pct_region_OLD) else "&mdash;", if (g3) fmt_pct(r$pct_region_NEW) else "&mdash;",
+          if (g3) dcl(r$d_region) else "", if (g3) fmt_signed(r$d_region) else "&mdash;",
+          fmt_count(t$lose_auto), fmt_count(t$gain_auto))
+}, character(1))
+tot <- sprintf('<tr class="dim-row"><th>All</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>',
+               cnt(N_CY), fmt_pct(AUTO_OLD), fmt_pct(AUTO_NEW), fmt_signed(AUTO_NEW - AUTO_OLD),
+               fmt_pct(REG3_OLD), fmt_pct(REG3_NEW), fmt_signed(REG3_NEW - REG3_OLD), cnt(LOSE_AUTO), cnt(GAIN_AUTO))
+emit_html(paste0(table_css, sprintf('
+<table class="results-table" style="font-size:0.64em">
+  <thead>
+    <tr><th></th><th></th><th colspan="3" class="grp grp-new">Auto-exit (5.0+)</th><th colspan="3" class="grp grp-new">Exit region (4.3+, grades 3+)</th><th colspan="2" class="grp grp-new">Auto-exit status</th></tr>
+    <tr><th>Grade</th><th>N</th><th>Current</th><th>New</th><th>Change</th><th>Current</th><th>New</th><th>Change</th><th>Lose</th><th>Gain</th></tr>
+  </thead>
+  <tbody>%s%s</tbody>
+</table>
+<div class="rt-caption">%s ACCESS takers, Overall composite. Changes in percentage points. &ldquo;&lt;10&rdquo;: count suppressed. The &ldquo;All&rdquo; exit-region figures are for grades 3&ndash;12.</div>',
+paste(rows, collapse = ""), tot, CY)))
+```
+
+::: {.notes}
+Reference table for the 2026 comparison.
+:::
+
+
+## Appendix: PL cut ladders on the new scale
+
+```{r app-ladders}
+#| output: asis
+TH <- c(2.0, 3.0, 4.0, 4.3, 4.5, 5.0, 6.0)
+cell <- function(gr, t) {
+  o <- lad[GRADE == gr & STANDARD == "OLD" & THRESHOLD == t]$CUT_SS_NEW
+  n <- lad[GRADE == gr & STANDARD == "NEW" & THRESHOLD == t]$CUT_SS_NEW
+  ofmt <- if (is.na(o)) "&mdash;" else as.character(o)
+  sprintf('<td>%s &rarr; <span class="rt-new">%s</span></td>', ofmt, if (is.na(n)) "&mdash;" else n)
+}
+rows <- vapply(GRADES, function(gr) sprintf('<tr><th class="rt-grade">%s</th>%s</tr>', pretty_grade(gr),
+                                            paste(vapply(TH, function(t) cell(gr, t), character(1)), collapse = "")),
+               character(1))
+emit_html(paste0(table_css, sprintf('
+<table class="results-table" style="font-size:0.66em">
+  <thead><tr><th>Grade</th>%s</tr></thead>
+  <tbody>%s</tbody>
+</table>
+<div class="rt-caption">Lowest new-scale composite score at which each PL is reached: current standard &rarr; <span class="rt-new">new 2026&ndash;27 standard</span>. Source: WIDA ACCESS Concordance Table, updated October 2026, Overall. &ldquo;&mdash;&rdquo;: level not reachable on the 100&ndash;600 scale.</div>',
+paste(sprintf("<th>PL %s</th>", fmt_pl(TH)), collapse = ""), paste(rows, collapse = ""))))
+```
+
+::: {.notes}
+Every policy-relevant cut, both standards, all grades. The 4.3 and 5.0 columns drive the deck.
+:::
+
+
+## Appendix: method details {.smaller}
+
+:::: {.columns}
+
+::: {.column width="50%"}
+**2026 (exact)**
+
+- Each 2026 Overall composite score (new scale) is looked up in the concordance by grade. The current-standard PL reproduces the PL on Indiana's file for **`r pp(vs[YEAR == CY]$pct_pl_match)`%** of `r cnt(N_CY)` students.
+
+**2024 and 2025 (robustness)**
+
+- Old-scale scores are converted with `widaACCESS_2026_scale_score_transformation(direction = "OLD_to_NEW")` from `SGPstateData`. Where several new scores share one old score, it takes their median. Results are rounded half up.
+- The new PL is looked up at the converted score. The current-standard PL is the operational PL on Indiana's file.
+- Round trip (converted score &rarr; current-standard PL): `r pp(vs[YEAR == "2024"]$pct_pl_match)`% exact in 2024 and `r pp(vs[YEAR == "2025"]$pct_pl_match)`% in 2025; exit status agrees for `r pp(min(vs$pct_exit_match), 2)`%+.
+:::
+
+::: {.column width="50%"}
+**Method check on 2026**
+
+- The 2026 file also carries each student's old-scale score. Pushing those through the 2024/2025 route and comparing with the exact lookup:
+
+```{r app-method-check}
+#| output: asis
+rows <- vapply(seq_len(nrow(mc)), function(i) {
+  r <- mc[i]
+  sprintf('<tr><th class="rt-grade">%s</th><td>%s%%</td><td>%s%%</td><td>%s%%</td><td>%s%%</td></tr>',
+          pretty_grade(r$GRADE), pp(r$pct_pl_within), pp(r$pct_exit_agree), pp(r$pct_auto_exact), pp(r$pct_auto_hist))
+}, character(1))
+emit_html(paste0(table_css, sprintf('
+<table class="results-table" style="font-size:0.8em">
+  <thead><tr><th>Grade</th><th>PL within 0.1</th><th>Exit status agrees</th><th>Auto-exit, exact</th><th>Auto-exit, via transform</th></tr></thead>
+  <tbody>%s</tbody>
+</table>', paste(rows, collapse = ""))))
+```
+:::
+
+::::
+
+::: {.notes}
+The transform route slightly overstates auto-exit in a few grades (at most about 0.4 points), which bounds the error in the 2024-2025 robustness results.
+:::
+
+
+## Appendix: 2024&ndash;2026 auto-exit and exit region by grade
+
+```{r app-history-table}
+#| output: asis
+hrow <- vapply(GRADES, function(gr) {
+  cells <- paste(vapply(YRS, function(y) {
+    r <- rw[YEAR == y & GRADE == gr]
+    sprintf('<td>%s</td><td class="rt-new">%s</td>', pp(r$pct_auto_OLD), pp(r$pct_auto_NEW))
+  }, character(1)), collapse = "")
+  cells2 <- paste(vapply(YRS, function(y) {
+    r <- rw[YEAR == y & GRADE == gr]
+    if (as.integer(gr) < REVIEW_MIN_GRADE) return('<td>&mdash;</td><td>&mdash;</td>')
+    sprintf('<td>%s</td><td class="rt-new">%s</td>', pp(r$pct_region_OLD), pp(r$pct_region_NEW))
+  }, character(1)), collapse = "")
+  sprintf('<tr><th class="rt-grade">%s</th>%s%s</tr>', pretty_grade(gr), cells, cells2)
+}, character(1))
+yh <- paste(sprintf('<th colspan="2" class="grp grp-new">%s</th>', YRS), collapse = "")
+sub <- paste(rep('<th>Cur.</th><th class="rt-new">New</th>', 2 * length(YRS)), collapse = "")
+emit_html(paste0(table_css, sprintf('
+<table class="results-table" style="font-size:0.6em">
+  <thead>
+    <tr><th></th><th colspan="6" class="grp">Auto-exit (%%)</th><th colspan="6" class="grp">Exit region, grades 3+ (%%)</th></tr>
+    <tr><th></th>%s%s</tr>
+    <tr><th>Grade</th>%s</tr>
+  </thead>
+  <tbody>%s</tbody>
+</table>
+<div class="rt-caption">Current: the PL Indiana reported that year. New: the 2026&ndash;27 PL table applied to the same scores (2024&ndash;2025 via score transform).</div>',
+yh, yh, sub, paste(hrow, collapse = ""))))
+```
+
+::: {.notes}
+Full robustness table behind the "Is it stable?" section.
+:::
