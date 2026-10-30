@@ -1,46 +1,64 @@
 /*-- scss:defaults --*/
 
-// ── NCIEA presentation design tokens ────────────────────────────
-// Three-tier token model: primitive values → semantic roles →
-// component styling. Edit the tokens here; the rules below consume them.
+// generated-from: @dataimago/css@0.1.0-alpha.18 (token values in tokens.scss, a later theme layer)
+// Every variable is !default so a deck's own theme layer (styles/custom.scss) can override it.
 
-// Surface colors (light theme)
-$body-bg: rgb(237, 237, 235);        // token: color.surface.page
-$body-color: rgb(20, 20, 16);        // token: color.content.primary
-$presentation-heading-color: rgb(20, 20, 16);
+// Surfaces and text
+$body-bg: $di-surface-page !default;
+$body-color: $di-content-primary !default;
+$presentation-heading-color: $di-content-primary !default;
+$text-muted: $di-content-secondary !default;
 
-// Interactive / accent
-$link-color: #3498DB;                // token: color.brand.primary
-$link-color-hover: #2980B9;
+// Links: accent-500 is the AA-safe accent on stone-100; presentation-blue fails AA as text.
+$link-color: $di-interactive-accent !default;
+$link-color-hover: $di-accent-600 !default;
+$selection-bg: rgba($di-presentation-blue-500, 0.3) !default;
+$selection-color: $di-content-primary !default;
 
 // Typography
-$presentation-font-size-root: 40px;
-$presentation-heading-font: "Josefin Sans", system-ui, sans-serif;
-$presentation-font: "Noto Sans", system-ui, sans-serif;
-$code-font: "Noto Sans Mono", "SF Mono", monospace;
+$presentation-font-size-root: 40px !default;
+$font-family-sans-serif: $di-font-sans !default;
+$font-family-monospace: $di-font-mono !default;
+$presentation-heading-font: $di-font-display !default;
+$presentation-heading-font-weight: 600 !default;
+$presentation-h1-font-size: 1.8em !default;
+$presentation-h2-font-size: 1.4em !default;
+$presentation-h3-font-size: 1.1em !default;
 
-// Heading sizes
-$presentation-h1-font-size: 1.8em;
-$presentation-h2-font-size: 1.4em;
-$presentation-h3-font-size: 1.1em;
-
-// Heading weights
-$presentation-heading-font-weight: 600;
+// Code
+$code-bg: $di-surface-code !default;
+$code-block-bg: $di-surface-code !default;
+$code-block-border-color: $di-border-code !default;
 
 /*-- scss:rules --*/
 
-// ── Font loading ────────────────────────────────────────────────
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@200;300;400;500;600;700&family=Noto+Sans:wdth,wght@100..125,300..800&family=Noto+Sans+Mono:wght@400;500;700&display=swap');
-
-// ── CSS custom properties (semantic tokens) ─────────────────────
+// ── Semantic custom properties ──────────────────────────────────
+// --color-primary stays presentation-blue for decks' own decorative CSS;
+// anything that is text uses --color-primary-ink.
 :root {
-  --color-primary: #3498DB;
+  --color-primary: #{$di-presentation-accent};
+  --color-primary-ink: #{$di-interactive-accent};
   --color-accent: #ff69b4;
-  --color-surface: rgb(237, 237, 235);
-  --color-text: rgb(20, 20, 16);
-  --color-secondary: #7c7c7c;
-  --color-border: rgb(220, 220, 218);
+  --color-accent-ink: #b0235f;
+  --color-surface: #{$di-surface-page};
+  --color-text: #{$di-content-primary};
+  --color-secondary: #{$di-content-secondary};
+  --color-border: #{$di-stone-200};
   --color-surface-subtle: rgba(225, 225, 223, 0.5);
+  --color-focus: #{$di-interactive-focus};
+}
+
+@mixin visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 
 // ── Global slide styles ─────────────────────────────────────────
@@ -50,6 +68,23 @@ $presentation-heading-font-weight: 600;
 
 .reveal .slides section {
   line-height: 1.5;
+}
+
+// ── Links and focus ─────────────────────────────────────────────
+// Accent-500 is only ~2.8:1 against body text, so colour alone cannot mark a
+// link in running text (WCAG 1.4.1): underline it.
+.reveal .slides section :is(p, li, dd, td, blockquote, figcaption) a {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 0.06em;
+}
+
+.reveal a:focus-visible,
+.reveal button:focus-visible,
+.reveal [tabindex]:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 // ── Heading hierarchy ───────────────────────────────────────────
@@ -65,10 +100,8 @@ $presentation-heading-font-weight: 600;
   margin-bottom: 0.6em;
 }
 
-// Hide empty H2 elements. Pandoc/Quarto emits `<h2></h2>` for titleless
-// `## {.center}` slide-divider lines, and the `.reveal h2` border-bottom above
-// would otherwise render a stray 2px blue strip across those slides. Only
-// matches H2s with literally zero children, so titled slides are untouched.
+// Pandoc/Quarto emits `<h2></h2>` for titleless `## {.center}` divider slides;
+// without this the border-bottom above draws a stray strip across them.
 .reveal h2:empty {
   display: none;
 }
@@ -91,7 +124,7 @@ $presentation-heading-font-weight: 600;
   }
 
   p.subtitle {
-    font-family: "Josefin Sans", system-ui, sans-serif;
+    font-family: $di-font-display;
     font-size: 0.85em;
     font-weight: 300;
     color: var(--color-secondary);
@@ -113,9 +146,10 @@ $presentation-heading-font-weight: 600;
   }
 }
 
-// Reveal positions each slide <section> absolutely; giving #title-slide its
-// own position breaks that and pushes later slides down. The QR therefore
-// sits on the 1920×1080 .slides canvas and is shown only on the title slide.
+// Title-slide QR code (deck-scripts.html). Reveal positions each slide <section>
+// absolutely; giving #title-slide its own position breaks that and pushes
+// later slides down. The QR therefore sits on the 1920×1080 .slides canvas and
+// is shown only on the title slide.
 .reveal .slides > .deck-qr {
   position: absolute;
   right: 48px;
@@ -146,7 +180,7 @@ $presentation-heading-font-weight: 600;
 
   li {
     margin-bottom: 0.35em;
-    font-size: 0.88em;
+    font-size: 0.95em;
     line-height: 1.45;
   }
 }
@@ -173,11 +207,10 @@ $presentation-heading-font-weight: 600;
 .reveal math,
 .reveal .math,
 .reveal mjx-container {
-  font-family: "Noto Sans Math", "STIX Two Math", "Cambria Math", serif !important;
+  font-family: $di-font-math !important;
   font-size: 0.92em;
 }
 
-// Large display math on dedicated slides
 .math-display {
   font-size: 1.15em;
   text-align: center;
@@ -189,7 +222,9 @@ $presentation-heading-font-weight: 600;
   margin: 0;
 }
 
-.reveal figcaption {
+// A lone captioned image on a slide renders as img.r-stretch + p.caption, not <figure>.
+.reveal figcaption,
+.reveal .slide img.r-stretch + p.caption {
   font-size: 0.55em;
   color: var(--color-secondary);
   font-style: italic;
@@ -201,21 +236,24 @@ $presentation-heading-font-weight: 600;
   box-shadow: none;
 }
 
-// Subtle "lifted card" wash behind figure images so they sit slightly
-// lighter than the slide surface. Applied to figure images only, so
-// title-slide logos and bare <img> elements are unaffected.
+// Quarto's left-aligned slide text would otherwise pin a lone stretched figure to the left edge.
+.reveal .slides section.figure-slide img.r-stretch {
+  display: block;
+  margin-inline: auto;
+}
+
+// "Lifted card" wash behind figure images only, so title-slide logos and bare
+// <img> elements are unaffected.
 .reveal figure img {
   background: rgba(255, 255, 255, 0.15);
   padding: 6px;
   border-radius: 4px;
-  box-sizing: border-box;  // keep padding inside declared width
+  box-sizing: border-box;
 }
 
 // ── Quarto layout grids (layout-ncol / layout) ──────────────────
-// Quarto strips width/height attributes from images inside a layout grid,
-// and the images otherwise render at their intrinsic SVG size, leaving lots
-// of empty space in each cell. Force images to fill their cell and tighten
-// the row/cell gaps.
+// Quarto strips width/height from images inside a layout grid and they would
+// otherwise render at intrinsic SVG size, leaving empty space in each cell.
 .reveal .quarto-layout-panel {
   img {
     width: 100%;
@@ -251,234 +289,6 @@ $presentation-heading-font-weight: 600;
   background: white;
 }
 
-// ── Custom utility classes ──────────────────────────────────────
-
-// Visually-hidden utility (WAI / Bootstrap pattern). Removes content from the
-// visual flow while keeping it in the accessibility tree for screen readers.
-// Applied as a `:::{.visually-hidden}...:::` block inside otherwise-untitled
-// `## {.center}` slides so screen-reader users still hear a slide landmark
-// name.
-.visually-hidden {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  clip-path: inset(50%) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-}
-
-// Accent text
-.accent {
-  color: var(--color-primary);
-}
-
-.accent-pink {
-  color: var(--color-accent);
-}
-
-// Text size helpers for dense or emphatic slides
-.larger {
-  font-size: 1.25em;
-}
-
-.smaller {
-  font-size: 0.75em;
-}
-
-.smallest {
-  font-size: 0.6em;
-}
-
-// Conference / venue badge styling
-.conference-badge {
-  font-family: "Josefin Sans", system-ui, sans-serif;
-  font-size: 0.5em;
-  font-weight: 300;
-  color: var(--color-secondary);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-// Key insight box (blue) — the workhorse callout
-.key-insight {
-  background: linear-gradient(135deg, rgba(52, 152, 219, 0.08), rgba(52, 152, 219, 0.03));
-  border: 1px solid rgba(52, 152, 219, 0.2);
-  border-left: 4px solid var(--color-primary);
-  border-radius: 6px;
-  padding: 0.6em 1em;
-  margin: 0.6em 0;
-
-  p {
-    margin: 0.2em 0;
-    font-size: 0.85em;
-  }
-
-  strong {
-    color: var(--color-primary);
-  }
-}
-
-// Theorem / definition box with integrated title bar (orange)
-.theorem-box {
-  background: linear-gradient(135deg, rgba(230, 126, 34, 0.10), rgba(230, 126, 34, 0.04));
-  border: 1px solid rgba(230, 126, 34, 0.30);
-  border-left: 4px solid #e67e22;
-  border-radius: 6px;
-  padding: 0;
-  margin: 0.6em 0 0.8em 0;
-  overflow: hidden;
-
-  p {
-    margin: 0.2em 0;
-    font-size: 0.85em;
-  }
-
-  .theorem-box-title {
-    margin: 0;
-    padding: 0.35em 0.75em;
-    font-family: "Josefin Sans", system-ui, sans-serif;
-    font-weight: 600;
-    color: #a34e00;
-    background: rgba(230, 126, 34, 0.18);
-    border-bottom: 1px solid rgba(230, 126, 34, 0.28);
-  }
-
-  > :not(.theorem-box-title) {
-    padding-left: 0.9em;
-    padding-right: 0.9em;
-  }
-
-  > :last-child {
-    padding-bottom: 0.55em;
-  }
-}
-
-// Emphasis box with integrated title bar (violet; distinct from the two above)
-.key-insight-box {
-  background: linear-gradient(135deg, rgba(142, 68, 173, 0.10), rgba(142, 68, 173, 0.04));
-  border: 1px solid rgba(142, 68, 173, 0.30);
-  border-left: 4px solid #8e44ad;
-  border-radius: 6px;
-  padding: 0;
-  margin: 0.6em 0 0.8em 0;
-  overflow: hidden;
-
-  p {
-    margin: 0.2em 0;
-    font-size: 0.85em;
-  }
-
-  strong {
-    color: #6c3483;
-  }
-
-  .key-insight-box-title {
-    margin: 0;
-    padding: 0.35em 0.75em;
-    font-family: "Josefin Sans", system-ui, sans-serif;
-    font-weight: 600;
-    color: #4a235a;
-    background: rgba(142, 68, 173, 0.18);
-    border-bottom: 1px solid rgba(142, 68, 173, 0.28);
-  }
-
-  > :not(.key-insight-box-title) {
-    padding-left: 0.9em;
-    padding-right: 0.9em;
-  }
-
-  > :last-child {
-    padding-bottom: 0.55em;
-  }
-}
-
-// Warning / caution box with integrated title bar (red) — for the
-// "vicious cycle" family of slides.
-.warning-box {
-  background: linear-gradient(135deg, rgba(192, 57, 43, 0.10), rgba(192, 57, 43, 0.04));
-  border: 1px solid rgba(192, 57, 43, 0.30);
-  border-left: 4px solid #c0392b;
-  border-radius: 6px;
-  padding: 0;
-  margin: 0.6em 0 0.8em 0;
-  overflow: hidden;
-
-  p {
-    margin: 0.2em 0;
-    font-size: 0.85em;
-  }
-
-  strong {
-    color: #922b21;
-  }
-
-  .warning-box-title {
-    margin: 0;
-    padding: 0.35em 0.75em;
-    font-family: "Josefin Sans", system-ui, sans-serif;
-    font-weight: 600;
-    color: #922b21;
-    background: rgba(192, 57, 43, 0.18);
-    border-bottom: 1px solid rgba(192, 57, 43, 0.28);
-  }
-
-  > :not(.warning-box-title) {
-    padding-left: 0.9em;
-    padding-right: 0.9em;
-  }
-
-  > :last-child {
-    padding-bottom: 0.55em;
-  }
-}
-
-// Summary number callout
-.stat-callout {
-  text-align: center;
-  padding: 0.5em;
-
-  .stat-number {
-    font-family: "Josefin Sans", system-ui, sans-serif;
-    font-size: 2.5em;
-    font-weight: 700;
-    color: var(--color-primary);
-    line-height: 1;
-  }
-
-  .stat-label {
-    font-size: 0.6em;
-    color: var(--color-secondary);
-    margin-top: 0.2em;
-  }
-}
-
-// Two-column helper (non-Quarto; simple flexbox)
-.two-col {
-  display: flex;
-  gap: 2em;
-  align-items: flex-start;
-
-  .col {
-    flex: 1;
-  }
-}
-
-// ── Slide number styling ────────────────────────────────────────
-.reveal .slide-number {
-  font-family: "Noto Sans Mono", monospace;
-  font-size: 0.5em;
-  color: var(--color-secondary);
-}
-
-// ── Fragment animation refinement ───────────────────────────────
-.reveal .fragment.fade-in-then-semi-out.visible:not(.current-fragment) {
-  opacity: 0.4;
-}
-
 // ── Goodness-of-fit grids ───────────────────────────────────────
 // Portrait GoF SVGs (612×792 pt) blow past slide height when only one or two
 // panels share a row at full column width — cap height and center horizontally.
@@ -497,8 +307,7 @@ $presentation-heading-font-weight: 600;
 // Reveal scales the 1920×1080 slide, and vh is viewport-relative, so a
 // vh cap shrinks twice and the panels collapse to thumbnails. 620px is
 // just under the unconstrained 3-up height (~760px) and leaves room for
-// the heading + .key-insight on the 1080 canvas. Click-to-enlarge still
-// opens the full SVG.
+// the heading + .key-insight on the 1080 canvas.
 .reveal .gof-grid-short figure img {
   max-height: 620px;
   width: auto;
@@ -507,18 +316,315 @@ $presentation-heading-font-weight: 600;
   margin: 0 auto;
 }
 
-// ── Figure zoom modal (click-to-enlarge) ────────────────────────
+// ── Accessibility utilities ─────────────────────────────────────
+// Off-screen but in the accessibility tree. Use as a `::: {.visually-hidden}`
+// sibling block on titleless `## {.center}` slides rather than on the H2
+// itself: Reveal's flex centering misplaces absolutely-positioned headings.
+.visually-hidden,
+.sr-only {
+  @include visually-hidden;
+}
+
+// Image-only archive slides: the slide is its background image, and the
+// extracted slide text sits in `.archive-text` for screen readers and search.
+.reveal .slides section.archive-slide {
+  > h2,
+  .archive-text {
+    @include visually-hidden;
+  }
+}
+
+// ── Inline emphasis and text sizes ──────────────────────────────
+.accent {
+  color: var(--color-primary-ink);
+}
+
+.accent-pink {
+  color: var(--color-accent-ink);
+}
+
+.larger {
+  font-size: 1.25em;
+}
+
+.smaller {
+  font-size: 0.75em;
+}
+
+.smallest {
+  font-size: 0.6em;
+}
+
+.muted {
+  color: var(--color-secondary);
+}
+
+.kicker {
+  font-size: 0.5em;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+.claim {
+  font-size: 1.35em;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.fine-print {
+  margin-top: 1.2em;
+  font-size: 0.65em;
+  color: var(--color-secondary);
+  line-height: 1.4;
+}
+
+.quote-hero {
+  font-family: $di-font-display;
+  font-size: 1.55em;
+  font-weight: 500;
+  line-height: 1.25;
+  text-align: center;
+  padding: 1.4em 0.2em 0;
+}
+
+// Draft marker for unresolved content; meant to be visible.
+.placeholder {
+  background: #fff3cd;
+  outline: 1px dashed #f39c12;
+  padding: 0 0.2em;
+}
+
+.conference-badge {
+  font-family: $di-font-display;
+  font-size: 0.5em;
+  font-weight: 300;
+  color: var(--color-secondary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.illustrative-badge {
+  display: inline-block;
+  font-family: $di-font-display;
+  font-size: 0.5em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7a5c33;
+  background: rgba(230, 126, 34, 0.14);
+  border: 1px solid rgba(230, 126, 34, 0.35);
+  border-radius: 999px;
+  padding: 0.18em 0.7em;
+  margin-bottom: 0.4em;
+}
+
+// ── Callout boxes ───────────────────────────────────────────────
+// Key insight box (blue) — the workhorse callout
+.key-insight {
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.08), rgba(52, 152, 219, 0.03));
+  border: 1px solid rgba(52, 152, 219, 0.2);
+  border-left: 4px solid var(--color-primary);
+  border-radius: 6px;
+  padding: 0.6em 1em;
+  margin: 0.6em 0;
+
+  p {
+    margin: 0.2em 0;
+    font-size: 0.95em;
+  }
+
+  strong {
+    color: var(--color-primary-ink);
+  }
+}
+
+// Theorem / definition box with integrated title bar (orange)
+.theorem-box {
+  background: linear-gradient(135deg, rgba(230, 126, 34, 0.10), rgba(230, 126, 34, 0.04));
+  border: 1px solid rgba(230, 126, 34, 0.30);
+  border-left: 4px solid #e67e22;
+  border-radius: 6px;
+  padding: 0;
+  margin: 0.6em 0 0.8em 0;
+  overflow: hidden;
+
+  p {
+    margin: 0.2em 0;
+    font-size: 0.95em;
+  }
+
+  .theorem-box-title {
+    margin: 0;
+    padding: 0.35em 0.75em;
+    font-family: $di-font-display;
+    font-weight: 600;
+    color: $di-copper-700;
+    background: rgba(230, 126, 34, 0.18);
+    border-bottom: 1px solid rgba(230, 126, 34, 0.28);
+  }
+
+  > :not(.theorem-box-title) {
+    padding-left: 0.9em;
+    padding-right: 0.9em;
+  }
+
+  > :last-child {
+    padding-bottom: 0.55em;
+  }
+}
+
+// Emphasis box with integrated title bar (violet)
+.key-insight-box {
+  background: linear-gradient(135deg, rgba(142, 68, 173, 0.10), rgba(142, 68, 173, 0.04));
+  border: 1px solid rgba(142, 68, 173, 0.30);
+  border-left: 4px solid #8e44ad;
+  border-radius: 6px;
+  padding: 0;
+  margin: 0.6em 0 0.8em 0;
+  overflow: hidden;
+
+  p {
+    margin: 0.2em 0;
+    font-size: 0.95em;
+  }
+
+  strong {
+    color: #6c3483;
+  }
+
+  .key-insight-box-title {
+    margin: 0;
+    padding: 0.35em 0.75em;
+    font-family: $di-font-display;
+    font-weight: 600;
+    color: #4a235a;
+    background: rgba(142, 68, 173, 0.18);
+    border-bottom: 1px solid rgba(142, 68, 173, 0.28);
+  }
+
+  > :not(.key-insight-box-title) {
+    padding-left: 0.9em;
+    padding-right: 0.9em;
+  }
+
+  > :last-child {
+    padding-bottom: 0.55em;
+  }
+}
+
+// Warning / caution box with integrated title bar (red)
+.warning-box {
+  background: linear-gradient(135deg, rgba(192, 57, 43, 0.10), rgba(192, 57, 43, 0.04));
+  border: 1px solid rgba(192, 57, 43, 0.30);
+  border-left: 4px solid #c0392b;
+  border-radius: 6px;
+  padding: 0;
+  margin: 0.6em 0 0.8em 0;
+  overflow: hidden;
+
+  p {
+    margin: 0.2em 0;
+    font-size: 0.95em;
+  }
+
+  strong {
+    color: #922b21;
+  }
+
+  .warning-box-title {
+    margin: 0;
+    padding: 0.35em 0.75em;
+    font-family: $di-font-display;
+    font-weight: 600;
+    color: #922b21;
+    background: rgba(192, 57, 43, 0.18);
+    border-bottom: 1px solid rgba(192, 57, 43, 0.28);
+  }
+
+  > :not(.warning-box-title) {
+    padding-left: 0.9em;
+    padding-right: 0.9em;
+  }
+
+  > :last-child {
+    padding-bottom: 0.55em;
+  }
+}
+
+// Summary number callout. Large display text, but presentation-blue is
+// 2.7:1 on stone-100 (below even the 3:1 large-text floor), so it uses the ink.
+.stat-callout {
+  text-align: center;
+  padding: 0.5em;
+
+  .stat-number {
+    font-family: $di-font-display;
+    font-size: 2.5em;
+    font-weight: 700;
+    color: var(--color-primary-ink);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.6em;
+    color: var(--color-secondary);
+    margin-top: 0.2em;
+  }
+}
+
+// ── Layout helpers ──────────────────────────────────────────────
+// Two-column helper (non-Quarto; simple flexbox)
+.two-col {
+  display: flex;
+  gap: 2em;
+  align-items: flex-start;
+
+  .col {
+    flex: 1;
+  }
+}
+
+// Quarto revealjs columns are inline-blocks; flex lets the pair sit in the
+// middle of the space below the title.
+.reveal .v-center-cols > .columns {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 760px;
+}
+
+.full-bleed-img {
+  margin: 0 !important;
+
+  img {
+    max-height: 820px;
+    width: auto;
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+  }
+}
+
+// ── Slide number ────────────────────────────────────────────────
+.reveal .slide-number {
+  font-family: $di-font-mono;
+  font-size: 0.5em;
+  color: var(--color-secondary);
+}
+
+// ── Fragment animation refinement ───────────────────────────────
+.reveal .fragment.fade-in-then-semi-out.visible:not(.current-fragment) {
+  opacity: 0.4;
+}
+
+// ── Figure zoom modal (deck-scripts.html) ───────────────────────
 .reveal .slides img:not(.no-modal) {
   cursor: pointer;
   transition: opacity 0.2s ease;
 
   &:hover {
     opacity: 0.85;
-  }
-
-  &:focus-visible {
-    outline: 3px solid var(--color-primary);
-    outline-offset: 4px;
   }
 }
 
@@ -580,10 +686,11 @@ $presentation-heading-font-weight: 600;
       color: var(--color-primary);
     }
 
+    // Sits on the dark backdrop, where presentation-blue has ample contrast.
     &:focus-visible {
       outline: 2px solid var(--color-primary);
       outline-offset: 4px;
-      border-radius: 0.25rem;
+      border-radius: 50%;
     }
   }
 
@@ -611,11 +718,6 @@ $presentation-heading-font-weight: 600;
   to   { opacity: 1; transform: scale(1); }
 }
 
-// ── Column vertical alignment utility ────────────────────────────
-.reveal .v-center-cols > .columns {
-  align-items: center;
-}
-
 // ── Print / PDF adjustments ─────────────────────────────────────
 @media print {
   .reveal .slides section {
@@ -623,29 +725,28 @@ $presentation-heading-font-weight: 600;
   }
 }
 
-// ── Reduced-motion accommodation ────────────────────────────────
-// Honors the OS-level "Reduce motion" preference (vestibular-disorder
-// accessibility, WCAG 2.3.3). Default visitors see no change; only users
-// who have opted in at the OS level get a static, non-animated deck.
+// ── Reduced motion (WCAG 2.3.3) ─────────────────────────────────
+// Only visitors who opted in at the OS level see a static deck. deck-scripts.html
+// also sets Reveal's slide/background transitions to none for them.
 @media (prefers-reduced-motion: reduce) {
   .reveal .slides section,
-  .reveal .slides section * {
+  .reveal .slides section *,
+  .reveal .backgrounds .slide-background,
+  .reveal .progress span {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
 
-  .reveal .slides {
+  .reveal .slides,
+  .reveal .slides img,
+  .figure-modal .modal-close {
     transition: none !important;
   }
 
   .figure-modal,
   .figure-modal .modal-content {
     animation: none !important;
-  }
-
-  .reveal .slides img {
-    transition: none !important;
   }
 }
