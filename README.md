@@ -1,5 +1,7 @@
 # WIDA_IN_Standard_Setting_Impact_Analysis
 
+Part of Damian Betebenner's talks: <https://dbetebenner.github.io/talks/>
+
 Presentation for the Indiana Department of Education (Office of English Learners &
 Multilingual Education) on how WIDA's 2026&ndash;27 proficiency levels change English
 learner exit eligibility in Indiana.
@@ -87,6 +89,14 @@ Quarto may need to run outside a restricted sandbox (it calls `sysctl`).
 
 ## Visual style
 
-Styling follows the New Hampshire WIDA deck: `styles/presentation-theme.scss` and
-`presentation-figure-modal.js` are copied from it unchanged. Figures use a background of
-`#F6F6F5`, halfway between white and the slide background (`rgb(237, 237, 235)`).
+The deck uses the shared dataimago deck extension, vendored at `_extensions/dataimago/deck/`
+from `NCIEA_Presentation_Template` (format `dataimago/deck-revealjs`). The extension
+supplies the theme, the click-to-enlarge figure lightbox, the title-slide QR placement, and
+the fonts (Josefin Sans, Noto Sans, Noto Sans Mono and Noto Sans Math, as local woff2 files
+embedded in the rendered HTML, with no font CDN). The deck's own additions (timeline,
+callout row, results tables) stay inline in the YAML header. The title-slide QR,
+`assets/qr-deck.svg`, encodes the published deck URL.
+
+Every figure carries `fig-alt` text describing what the chart shows. Figures use a
+background of `#F6F6F5`, halfway between white and the slide background
+(`rgb(237, 237, 235)`).

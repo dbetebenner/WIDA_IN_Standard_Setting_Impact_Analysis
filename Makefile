@@ -34,7 +34,7 @@ force:
 	$(MAKE) render
 
 render: $(CONC) $(IMPACT)
-	quarto render $(QMD) --to revealjs
+	quarto render $(QMD)
 	mkdir -p docs
 	mv -f index.html docs/index.html
 	rm -rf index_files

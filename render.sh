@@ -33,7 +33,7 @@ echo "==> [2/3] Summarising exit impact (aggregates only)"
 Rscript R/02_impact_summary.R ${FORCE}
 
 echo "==> [3/3] Rendering deck"
-quarto render WIDA_IN_Standard_Setting_Impact.qmd --to revealjs
+quarto render WIDA_IN_Standard_Setting_Impact.qmd
 mkdir -p docs
 mv -f index.html docs/index.html
 rm -rf index_files            # self-contained deck; supporting dir not needed
