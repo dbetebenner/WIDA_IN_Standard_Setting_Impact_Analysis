@@ -90,7 +90,7 @@ Quarto may need to run outside a restricted sandbox (it calls `sysctl`).
 ## Visual style
 
 The deck uses the shared dataimago deck extension, vendored at `_extensions/dataimago/deck/`
-from `NCIEA_Presentation_Template` (format `dataimago/deck-revealjs`). The extension
+from `Quarto_Presentation_Template` (format `dataimago/deck-revealjs`). The extension
 supplies the theme, the click-to-enlarge figure lightbox, the title-slide QR placement, and
 the fonts (Josefin Sans, Noto Sans, Noto Sans Mono and Noto Sans Math, as local woff2 files
 embedded in the rendered HTML, with no font CDN). The deck's own additions (timeline,
