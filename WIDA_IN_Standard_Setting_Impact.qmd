@@ -290,7 +290,7 @@ Assumptions to confirm with IDOE: the Overall composite is the only exit criteri
 :::
 
 
-## Data and method
+## Data and method {.smaller}
 
 ```{r data-method}
 #| output: asis
@@ -387,7 +387,7 @@ Read this as the size of the change for a student at the margin. In grades 4 and
 :::
 
 
-## Translating the current cuts into new levels
+## Translating the current cuts into new levels {.smaller}
 
 ```{r cut-translation}
 #| output: asis
@@ -920,7 +920,7 @@ All three options are close to neutral statewide, so the choice is about the gra
 :::
 
 
-## Independent corroboration: ILEARN
+## Independent corroboration: ILEARN {.smaller}
 
 :::: {.columns}
 
@@ -1002,7 +1002,7 @@ One-sentence answer: the new standards keep Indiana's statewide exit rate but mo
 :::
 
 
-## What cuts would preserve today's exit rates?
+## What cuts would preserve today's exit rates? {.smaller}
 
 :::: {.columns}
 
